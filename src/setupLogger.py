@@ -1,15 +1,27 @@
 import logging
 from datetime import date
 
-logfile_level = logging.INFO
 shell_level = logging.DEBUG
+logfile_level = logging.DEBUG
 
 
 def setup(announcement=None):
 
+    # der logger gibt hier den root Logger, welcher per Default auf stdout ausgibt
+    # jeder haendler, den ich hinzufüge, kann aber nur auf einer höheren Ebene wie er selbst printen
+    # daher scheitert mein Loggging
+
+    # Idee ist: hieraus eine schnittstelle bauen, welcher jeweils 2 unabhänge Logger triggered 
+    # dann muss aber in jeder Klasse das "import logging" ausgetauscht werden durch "from setupLogger import myLogger"
+
+
     # Setup Shell Logger
     logger = logging.getLogger()
-    logging.basicConfig(level=shell_level, format="[%(levelname)s]: %(message)s")
+    logging.basicConfig(level=logging.DEBUG, format="[%(levelname)s]: %(message)s")
+
+    # stream_handler = logging.StreamHandler()
+    # stream_handler.setLevel(shell_level)
+    # logger.addHandler(stream_handler)
 
     # Setup File Logger
     today = date.today()
@@ -31,3 +43,6 @@ def setup(announcement=None):
         "[%(asctime)s|%(levelname)s|%(name)s]:\t%(message)s"
     )
     fh.setFormatter(formatterFile)
+
+
+    logger.setLevel(shell_level)

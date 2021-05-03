@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 numpy = "*"
 tqdm = "*"
+nptyping = "*"
 
 [dev-packages]
 black = "*"

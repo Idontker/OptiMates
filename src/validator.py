@@ -26,9 +26,9 @@ def load_data(path, seperator, radial, polar):
                 phi = math.radians(row[2])
             else:
                 phi = row[2]
-            p = pos.point(row[0], theta, phi)
+            p = pos.Point(row[0], theta, phi)
         else:
-            p = pos.point(row[0], row[1], row[2], polar=False)
+            p = pos.Point(row[0], row[1], row[2], polar=False)
         sols.append(p)
         logging.debug("Added to solution: " + str(p))
     return sols

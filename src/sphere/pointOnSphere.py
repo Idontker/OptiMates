@@ -3,8 +3,7 @@ import logging
 import math
 import numpy as np
 
-
-class point:
+class Point:
     def __init__(self, v1, v2, v3, polar=True) -> None:
         """create a 3d point
         if polar == Ture: (v1,v2,v3) = (r,theta,phi)
@@ -22,8 +21,12 @@ class point:
             self.y = v2
             self.z = v3
             self.recalcPolar()
+        # logging.debug(self)
 
     def __str__(self):
+        # return (
+        #     "polar(" + str(self.r) + "," + str(self.phi) + "," + str(self.theta) + ")"
+        # )
         return (
             "polar("
             + str(self.r)
@@ -60,13 +63,15 @@ class point:
         r, theta, phi = self.r, self.theta, self.phi
         self.x = r * math.sin(theta) * math.cos(phi)
         self.y = r * math.sin(theta) * math.sin(phi)
-        self.z = r * math.sin(theta)
+        self.z = r * math.cos(theta)
         pass
 
     def prod(self, other):
         return self.x * other.x + self.y * other.y + self.z * other.z
 
     def dist(self, other):
+        if self == other:
+            return 0
         tmp = self.prod(other)
         tmp = tmp / (self.r * other.r)
         return np.arccos(tmp)
@@ -75,13 +80,15 @@ class point:
 pass
 
 
-def generateRandomPointOnSphere(r):
+def generateRandomPointOnSphere(R):
     theta = random() * np.pi
     phi = random() * 2 * math.pi
-    return point(r, theta, phi)
+    return Point(R, theta, phi)
 
 
 def dist(p1, p2):
+    if p1 == p2:
+        return 0
     tmp = p1.prod(p2)
     tmp = tmp / (p1.r * p2.r)
     return np.arccos(tmp)
