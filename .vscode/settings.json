@@ -1,4 +1,5 @@
 {
     "python.formatting.provider": "black",
-    "python.pythonPath": "C:\\Users\\Karol\\.virtualenvs\\sphereCovering-n1m4XumC\\Scripts\\python.exe"
+    "python.pythonPath": "C:\\Users\\Karol\\.virtualenvs\\sphereCovering-n1m4XumC\\Scripts\\python.exe",
+    "python.analysis.extraPaths": ["./src"]
 }

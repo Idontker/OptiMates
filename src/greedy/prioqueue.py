@@ -1,4 +1,4 @@
-from src.greedy import Entry
+from greedy import Entry
 import heapq
 
 

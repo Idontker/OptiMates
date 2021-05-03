@@ -1,5 +1,5 @@
-from src.genericAlgorithm.basic_genetic_algorithm import Genome
-from src.sphere import graphOnSphere as gos
+from genericAlgorithm.basic_genetic_algorithm import Genome
+from sphere import graphOnSphere as gos
 import logging
 
 

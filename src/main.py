@@ -2,13 +2,13 @@ import os
 print(os.getcwd())
 
 from functools import partial
-from src.graph import solution
-from src.greedy.greedysearch import GreedySearch
-from src.graph.graph import Graph
-from src.graph.solution import Solution
-import src.graph.graph as graph
-import src.setupLogger
-import src.validator
+from graph import solution
+from greedy.greedysearch import GreedySearch
+from graph.graph import Graph
+from graph.solution import Solution
+import graph.graph as graph
+import setupLogger
+import validator
 import logging
 import math
 import time
@@ -20,7 +20,7 @@ import time
 #########################
 #########################
 
-src.setupLogger.setup("Run main.py")
+setupLogger.setup("Run main.py")
 
 R = 1
 r = 70.6  # deg

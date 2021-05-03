@@ -1,10 +1,10 @@
-from src.sphere import Point
+from sphere import Point
+from graph import Node
 from typing import Callable, List
-from src.graph import Node
 from functools import partial
 
 import numpy as np
-import src.sphere.pointOnSphere as pos
+import sphere.pointOnSphere as pos
 import math
 import random
 

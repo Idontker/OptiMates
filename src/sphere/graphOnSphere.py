@@ -1,6 +1,6 @@
-from src.sphere import Point
+from sphere import Point
 from typing import List
-import src.sphere.pointOnSphere as pos
+import sphere.pointOnSphere as pos
 import random
 import logging
 import numpy as np

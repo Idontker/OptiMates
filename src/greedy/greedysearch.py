@@ -1,9 +1,9 @@
 from typing import Callable, Optional
-from src.graph import Graph, Node
-from src.greedy import prioqueue
-from src.sphere import Point, Solution
-from src.greedy.prioqueue import PrioQueue
-import src.graph as graphclass
+from graph import Graph, Node
+from greedy import prioqueue
+from sphere import Point, Solution
+from greedy.prioqueue import PrioQueue
+import graph as graphclass
 
 
 PrinterFunc = Callable[[int, Solution], None]

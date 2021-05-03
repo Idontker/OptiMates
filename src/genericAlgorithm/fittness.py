@@ -1,5 +1,5 @@
 from genericAlgorithm.basic_genetic_algorithm import Genome
-from genericAlgorithm.solution import Solution
+from sphere.solution import Solution
 from sphere.graphOnSphere import Graph
 from nptyping import NDArray
 import numpy as np

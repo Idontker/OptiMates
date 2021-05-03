@@ -1,14 +1,14 @@
 import logging
-from src.sphere.solution import Solution
-from src.genericAlgorithm.basic_genetic_algorithm import print_stats, run_evolution
-from src.sphere import pointOnSphere as pos
-from src.sphere import graphOnSphere as gos
+from sphere.solution import Solution
+from genericAlgorithm.basic_genetic_algorithm import print_stats, run_evolution
+from sphere import pointOnSphere as pos
+from sphere import graphOnSphere as gos
 import src.setupLogger
 import src.validator
-from src.sphere import solution as sol
-from src.genericAlgorithm import gericAlgo
-from src.genericAlgorithm import fittness
-from src.genericAlgorithm import basic_genetic_algorithm as bga
+from sphere import solution as sol
+from genericAlgorithm import gericAlgo
+from genericAlgorithm import fittness
+from genericAlgorithm import basic_genetic_algorithm as bga
 import math
 from functools import partial
 import time

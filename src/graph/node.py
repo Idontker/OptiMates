@@ -1,5 +1,5 @@
-from src.sphere import Point
-from typing import Any, Set
+from sphere import Point
+from typing import Set
 
 
 class Node:
