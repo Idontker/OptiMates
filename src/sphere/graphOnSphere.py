@@ -1,4 +1,4 @@
-from sphere import Point
+from sphere.pointOnSphere import Point
 from typing import List
 import sphere.pointOnSphere as pos
 import random
@@ -38,7 +38,7 @@ class Graph:
             points.append(point)
         
         # add to Graph
-        self.addPointsToGraph()
+        self.addPointsToGraph(points)
 
     # removed .size() with __len__
     def __len__(self) -> int:

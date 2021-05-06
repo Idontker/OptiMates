@@ -1,5 +1,5 @@
 import logging
-from genericAlgorithm import solution
+from sphere import solution
 import random
 
 

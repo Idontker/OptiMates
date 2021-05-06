@@ -3,8 +3,8 @@ from sphere.solution import Solution
 from genericAlgorithm.basic_genetic_algorithm import print_stats, run_evolution
 from sphere import pointOnSphere as pos
 from sphere import graphOnSphere as gos
-import src.setupLogger
-import src.validator
+import setupLogger
+import validator
 from sphere import solution as sol
 from genericAlgorithm import gericAlgo
 from genericAlgorithm import fittness
@@ -12,16 +12,17 @@ from genericAlgorithm import basic_genetic_algorithm as bga
 import math
 from functools import partial
 import time
+import numpy as np
 
 
-src.setupLogger.setup("Run main.py")
+setupLogger.setup("Run main.py")
 
 R = 1
 r = 70.6  # deg
 r = math.radians(r)
 logging.info(r)
 
-N = 1000
+N = 10000
 population_size = 25
 goal_size = 4
 generation_limit = 500
@@ -33,6 +34,12 @@ g1.initRandomSet(N)
 # logging.info(g1.strStruct())
 # ga = gericAlgo.Simple_GA(g1)
 adjmatrix = g1.createMatrix()
+mat = adjmatrix
+nonzero = np.count_nonzero(mat)
+print(mat)
+print(np.shape(mat))
+print(nonzero/(np.shape(mat)[0] * np.shape(mat)[1]))
+quit()
 
 timediff = time.time() - starttime
 logging.info(
@@ -49,7 +56,7 @@ f = partial(fittness.fittnessFast, adjmatrix=adjmatrix)
 starttime = time.time()
 population, generations = bga.run_evolution(
     populate_func=partial(
-        bga.generate_population, size=population_size, genome_length=g1.size()
+        bga.generate_population, size=population_size, genome_length=len(g1)
     ),
     fitness_func=f,
     fitness_limit=1 + 1 / (N * goal_size),

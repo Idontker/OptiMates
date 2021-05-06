@@ -12,7 +12,7 @@ class Point:
         all angels may be in radial form
         """
         if polar == True:
-            self.r = v1
+            self.r = float(v1)
             self.phi = v2
             self.theta = v3
             self.recalcCartesian()
@@ -34,7 +34,7 @@ class Point:
             + str(self.phi)
             + ","
             + str(self.theta)
-            + ") == ["
+            + ")\t == ["
             + str(self.x)
             + ","
             + str(self.y)
@@ -78,6 +78,10 @@ class Point:
 
 
 pass
+
+def parsePoint(s:str) -> Point:
+    extract_polar = s.split("(")[1].split(")")[0].split(",")
+    return Point(float(extract_polar[0]), float(extract_polar[1]), float(extract_polar[2]), polar=True)
 
 
 def generateRandomPointOnSphere(R):

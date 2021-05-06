@@ -1,5 +1,6 @@
-from sphere import Point
-from typing import Set
+from sphere.pointOnSphere import Point
+from typing import Set, Any
+import numpy as np
 
 
 class Node:
@@ -10,8 +11,8 @@ class Node:
         # label für eindeutigen Zugriff
         self.label = label
 
-        # Menge der Nachbarn, woebi nur die Labels der Nachbaren gespeichert werden
-        self.neighbours = set()
+        # Vektor der Nachbarn, woebi nur die Labels der Nachbaren gespeichert werden
+        self.neighbours = None
         pass
 
     ## Getter ##
@@ -25,18 +26,16 @@ class Node:
     def getLabel(self) -> int:
         return self.label
 
-    def getNeighbours(self) -> Set[Point]:
+    def getNeighbours(self) -> np.array:
         return self.neighbours
 
-    ## public methods
-
-    def addNeighbour(self, other: Node):
-        self.neighbours.add(other.label)
+    def setNeighbourVector(self, vector: np.array) -> None:
+        self.neighbours = vector
         pass
 
-    def isNeighbourOf(self, other: Node) -> bool:
-        """isNeighbourOf(self, other: Node) -> bool
-        
-        Returns true if self.neighbours contains the label of the Node
-        Returns false otherwise"""
-        return other.label in self.neighbours
+    # TODO: other should get the Node typing
+    def isNeighbourOf(self, other) -> bool:
+        return self.neighbours[other.label] == 1
+
+    def dist(self, other):
+        return self.point.dist(other.point)
