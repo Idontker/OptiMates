@@ -15,8 +15,39 @@ class Graph:
         self.cover_radius = cover_radius
         pass
 
-    # def create_adjmatrix(self) -> None:
-    #     self.adjmatrix = (self.dist < self.cover_radius).astype(np.int8)
+    def __len__(self) -> int:
+        return int(self.number_of_points)
+
+    ##############################
+    ##############################
+    # Updating and Getting Vectors
+    ##############################
+    ##############################
+
+    def update_neighbour(self, label) -> None:
+        d = self.get_distance_vector(label)
+        self.adj_neighbour_dic[label] = (d < self.cover_radius).astype(np.int8)
+
+    def update_vectors(self, label) -> None:
+        d = self.get_distance_vector(label)
+        ex_fak = math.sqrt(3) - 0.01
+        self.adj_extensions_dic[label] = (d < ex_fak * self.cover_radius).astype(
+            np.int8
+        )
+        self.adj_reach_dic[label] = (d < 2 * self.cover_radius).astype(np.int8)
+
+    def get_distance_vector(self, label) -> np.array:
+        cartesian = self.points[:, 3:6]
+        other = cartesian[label]
+        vec = np.matmul(cartesian, np.transpose(other))
+        vec[label] = 1
+        return np.arccos(vec)
+
+    ##############################
+    ##############################
+    ########## Getters ###########
+    ##############################
+    ##############################
 
     def get_reach_vector(self, label) -> np.array:
         if label not in self.adj_neighbour_dic:
@@ -48,29 +79,7 @@ class Graph:
             self.update_vectors(label)
         return self.adj_extensions_dic.pop(label)
 
-    def update_neighbour(self, label) -> None:
-        d = self.get_distance_vector(label)
-        self.adj_neighbour_dic[label] = (d < self.cover_radius).astype(np.int8)
-
-    def update_vectors(self, label) -> None:
-        d = self.get_distance_vector(label)
-        # range [0.8, 1.8]
-        # self.adj_extensions_dic[label] =  ( (d - 1.3 * self.cover_radius) < 0.5 * self.cover_radius).astype(
-        #     np.int8
-        # )
-
-        ex_fak = math.sqrt(3) - 0.01
-        self.adj_extensions_dic[label] = (d < ex_fak * self.cover_radius).astype(
-            np.int8
-        )
-        self.adj_reach_dic[label] = (d < 2 * self.cover_radius).astype(np.int8)
-
-    def get_distance_vector(self, label) -> np.array:
-        cartesian = self.points[:, 3:6]
-        other = cartesian[label]
-        vec = np.matmul(cartesian, np.transpose(other))
-        vec[label] = 1
-        return np.arccos(vec)
+    ### Generating points on graph ###
 
     def gen_random_points(self) -> None:
         self.points = np.array(
@@ -99,17 +108,14 @@ class Graph:
 
         return self._create_point(1, theta, phi)
 
-    def _create_random_point_old(self) -> np.array:
-        theta = random() * 2 * math.pi
-        phi = random() * math.pi
-
-        return self._create_point(1, theta, phi)
-
-    def __len__(self) -> int:
-        return int(self.number_of_points)
-
 
 pass
+
+#########################
+#########################
+# Save and Load Operation
+#########################
+#########################
 
 
 def save(g: Graph, filepath: str) -> None:
