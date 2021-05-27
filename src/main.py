@@ -1,19 +1,16 @@
-import os
-
-print(os.getcwd())
-
 from functools import partial
-from graph import solution
-from greedy.greedysearch import GreedySearch
-from graph.graph import Graph
-from graph.solution import Solution
-import graph.graph as graph
+from geometrics.ikosaeder import EPSILON
+from greedy.greedysearch2 import GreedySearch
+from graph.graph2 import Graph2
+from graph.solution2 import Solution
+import graph.graph2 as graph2
 import setupLogger
-import validator
 import logging
 import math
 import time
 import numpy as np
+import checker.checker as checker
+import graph.visu_sol as vis
 
 
 # TODO: make it fast: https://stackoverflow.com/questions/50615262/what-is-the-fastest-way-to-xor-a-lot-of-binary-arrays-in-python
@@ -39,14 +36,21 @@ def log_time(tastname, timediff):
 setupLogger.setup("Run main.py")
 
 R = 1
-r = 70.6  # deg
-r = math.radians(r)
-logging.info(r)
+durchmeser = 2 * 1.75  # deg
+r = math.radians(durchmeser / 2)
+logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
-N = 10000
 
+N = 20_000
+
+save = False
 # graph_path = None
-graph_path = ".\\graphsave\\graphsave_" + str(N) + "_01"
+graph_path = ".\\graphsave\\graphsave_" + str(N) + "_" + str(durchmeser) + "_01"
+solutionFilePath = ".\\sols\\solution_" + str(N) + "_" + str(durchmeser) + "_01.csv"
+
+# savety first
+EPSILON = 0.1
+r = math.radians(durchmeser * (1 - EPSILON) / 2)
 
 ## Berechne Besetzungsgrad
 # g = graph.load_graph_from(path=graph_path, radius=r)
@@ -67,16 +71,24 @@ graph_path = ".\\graphsave\\graphsave_" + str(N) + "_01"
 
 starttime = time.time()
 
-g = graph.load_graph_from(path=graph_path, radius=r)
+g = graph2.load_graph_from(filepath=graph_path)
 
 if g is None:
-    g = graph.create_default_graph_with_random_points(
-        sphere_radius=R, number_of_nodes=N, radius=r
-    )
-    g.save(graph_path)
+    g = Graph2(cover_radius=r, number_of_points=N)
+    # g.gen_random_points()
+    g.gen_iko_points(divisions=6)
+    N = g.number_of_points
+    print("number of nodes:", g.number_of_points)
+    if save:
+        graph2.save(g2=g, filepath=graph_path)
 
 timediff = time.time() - starttime
 log_time("graph creation", timediff)
+
+# vis.surface_spere()
+# for p in g.points:
+#     vis.add_point(p[3],p[4],p[5])
+# vis.plot_show()
 
 #########################
 #########################
@@ -111,3 +123,22 @@ log_time("greedy search", timediff)
 
 
 logging.info(s)
+s.save(solutionFilePath)
+
+#########################
+#########################
+####### CHECK SOL #######
+#########################
+#########################
+
+# Lies die Lösung ein
+solution = checker.readSolution(solutionFilePath)
+print("Durchmesser:", durchmeser)
+logging.info("Solution for {}:".format(durchmeser))
+for p in solution:
+    logging.info(p)
+
+# Überprüfe die Lösung
+checker.checkSolution(solution, durchmeser)
+
+import test

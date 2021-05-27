@@ -10,14 +10,17 @@ import sphere.pointOnSphere as pos
 import math
 import random
 import csv
+import itertools
 
 
 class Graph:
-    def __init__(self, isNeighbourFunction: Callable[[Point, Point], int]) -> None:
+    def __init__(self, cover_radius) -> None:
         self.nodes = {}
         self.nextLabel = 0
-        self.adjmatrix = np.full((0, 0), 0)
-        self.neighbour_function = isNeighbourFunction
+        self.adjmatrix = None
+        self.reach = None
+        self.dist = None
+        self.cover_radius = cover_radius
         pass
 
     def __len__(self) -> int:
@@ -59,26 +62,43 @@ class Graph:
         # create an emptry quadratic array (uninitialized)
         number_of_nodes = len(self)
         shape_of_matrix = (number_of_nodes, number_of_nodes)
-        matrix = np.empty(shape=shape_of_matrix, dtype=np.int8)
+        # matrix = np.empty(shape=shape_of_matrix, dtype=np.int8)
+        dist = np.empty(shape=shape_of_matrix, dtype=np.float64)
 
         # recalculate all edges with the given neighbour_function
         # update neighbours of each node if neighbour_function != 0
         #
         # Runs in O( |V|^2 )
-        # for i in tqdm(range(number_of_nodes)):
-        for i in range(number_of_nodes):
-            for j in tqdm(range(number_of_nodes)):
-                is_neighbour_value = self.neighbour_function(
-                    self.nodes[i], self.nodes[j]
-                )
-                matrix[i][j] = is_neighbour_value
-                pass
-            self.nodes[i].setNeighbourVector(matrix[i])
+        # for (x,y) in tqdm(matrix.)
+        n1, n2 = self.nodes[0], self.nodes[1]
+
+        for i,j in tqdm(np.ndindex(number_of_nodes,number_of_nodes)):
+            is_neighbour_value = self.nodes[i].point.dist(self.nodes[j].point)  #self.neighbour_function(
+                    #n1,n2 #self.nodes[i], self.nodes[j]
+                #)
+            dist[i, j] = is_neighbour_value
+            dist[j, i] = is_neighbour_value
             pass
 
-        self.adjmatrix = matrix
+        self.dist = dist
+        self.adjmatrix = (dist < self.cover_radius).astype(np.int8)
+
+        for i in tqdm(range(number_of_nodes)):
+            self.nodes[i].setNeighbourVector(self.dist[i])
+
+        # for i in tqdm(range(number_of_nodes)):
+        # # for i in range(number_of_nodes):
+        #     for j in range(number_of_nodes):
+        #         is_neighbour_value = self.neighbour_function(
+        #             self.nodes[i], self.nodes[j]
+        #         )
+        #         matrix[i, j] = is_neighbour_value
+        #         pass
+        #     self.nodes[i].setNeighbourVector(matrix[i])
+        #     pass
+
         logging.info("Done")
-        return matrix
+        return self.dist
 
     def save(self, filepath: str) -> None:
         writer_nodes = csv.writer(
@@ -149,8 +169,8 @@ def create_default_graph_with_random_points(
     # Runs in O(number_of_nodes)
     # create graph and add nodes
     logging.info("Create Gaph with {} nodes".format(number_of_nodes))
-    neighbour_function = partial(__default_distance, radius=radius)
-    graph = Graph(neighbour_function)
+    # neighbour_function = partial(__default_distance, radius=radius)
+    graph = Graph(radius)
     for point in tqdm(list_of_points):
         graph.addNode(point=point)
     logging.info("DONE")
