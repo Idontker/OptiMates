@@ -1,9 +1,9 @@
 from functools import partial
 from geometrics.ikosaeder import EPSILON
-from greedy.greedysearch2 import GreedySearch
-from graph.graph2 import Graph2
-from graph.solution2 import Solution
-import graph.graph2 as graph2
+from greedy.greedysearch import GreedySearch
+from graph.graph import Graph
+from graph.solution import Solution
+import graph.graph as graph
 import setupLogger
 import logging
 import math
@@ -71,16 +71,16 @@ r = math.radians(durchmeser * (1 - EPSILON) / 2)
 
 starttime = time.time()
 
-g = graph2.load_graph_from(filepath=graph_path)
+g = graph.load_graph_from(filepath=graph_path)
 
 if g is None:
-    g = Graph2(cover_radius=r, number_of_points=N)
+    g = Graph(cover_radius=r, number_of_points=N)
     # g.gen_random_points()
     g.gen_iko_points(divisions=6)
     N = g.number_of_points
     print("number of nodes:", g.number_of_points)
     if save:
-        graph2.save(g2=g, filepath=graph_path)
+        graph.save(g2=g, filepath=graph_path)
 
 timediff = time.time() - starttime
 log_time("graph creation", timediff)

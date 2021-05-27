@@ -1,15 +1,16 @@
 from typing import Callable, Optional
 
 from numpy.lib.function_base import cov
-from graph.graph import Graph
+from graph.graph2 import Graph2
 from graph.node import Node
 from greedy import prioqueue
-from greedy.entry import Entry
-from graph.solution import Solution
+from greedy.entry2 import Entry
+from graph.solution2 import Solution
 from greedy.prioqueue import PrioQueue
 import graph as graphclass
 import numpy as np
 import logging
+from tqdm import tqdm
 
 
 PrinterFunc = Callable[[int, Solution], None]
@@ -19,69 +20,43 @@ PrinterFunc = Callable[[int, Solution], None]
 
 
 class GreedySearch:
-    def __init__(self, graph: Graph) -> None:
+    def __init__(self, graph: Graph2) -> None:
         self.graph = graph
-        self.prioqueue = PrioQueue()
-        self.node_to_entry = {}
 
     def findSolution(self, printer: Optional[PrinterFunc] = None) -> Solution:
         # generate a solution
         sol = Solution(self.graph)
         self.prioqueue = PrioQueue()
-        self.node_to_entry = {}
+        self.label_to_entry = {}
 
-        # insert all nodes with equal weight:
-        for node in self.graph.nodes.values():
-            self.prioqueue.add_task(Entry(node))
+        # insert initial
+        self.prioqueue.add_task(Entry(graph=self.graph, label=0))
 
         iteration = 0
         while sol.isFullCover() == False:
 
             # get best by heuristcs / fittness
-            next_entry = self.prioqueue.pop_task()
+            curr_entry = self.prioqueue.pop_task()
+            logging.debug("\t\t\t\t\t\t" + str(curr_entry))
 
-            ## DEBUG ##
-            logging.debug("\t\t\t\t\t\t" + str(next_entry))
-            # old = sol.getCoveredNodes()
-            # logging.debug(old)
-            # logging.debug(np.count_nonzero(old - next_entry.node.getNeighbours() == -1))
-            ## DEBUG ##
+            curr_label = curr_entry.label
+            sol.addNodeByLabel(curr_label)
 
-            sol.addNodeByLabel(next_entry.node.label)
-
-            ## DEBUG ##
-            # old = np.apply_along_axis(
-            #     arr=old, axis=0, func1d=lambda x: (x != 0) * 1 + (x == 0) * 0
-            # )
-            # bitsol = np.apply_along_axis(
-            #     arr=sol.getCoveredNodes(),
-            #     axis=0,
-            #     func1d=lambda x: (x != 0) * 1 + (x == 0) * 0,
-            # )
-            # logging.debug(old)
-            # logging.debug(bitsol)
-            # logging.debug(old - bitsol)
-            ## DEBUG ##
-
-            covered_nodes = np.int8(sol.getCoveredNodes())
+            reached_labels = np.where(self.graph.pop_reach_vector(curr_label) != 0)[0]
+            extension_vec = self.graph.pop_extensions_vector(curr_label)
             amount_covered = sol.countCoveredNodes()
-            # TODO: BUG: hier wird eine falsche annahme getroffen, da der covering vektor nicht nur 0 oder 1 ist
-            # not_covered_nodes = np.invert(covered_nodes, dtype=np.int8)
+            covered_nodes = sol.covering_vec
 
-            # updating nodes in the prioqueue
-
-            # extract labels from neighbour vector
-            neighbour_labels = np.where(next_entry.node.getNeighbours() != 0)[0]
-            for neighbour_label in neighbour_labels:
-                neighbour = self.graph.getNode(neighbour_label)
-                if sol.containsLabel(neighbour_label):
+            # update prioqueue
+            for reached_label in tqdm(reached_labels):
+                if sol.containsLabel(reached_label):
                     pass
-                elif neighbour in self.node_to_entry:
-                    entry = self.node_to_entry[neighbour]
+                elif reached_label in self.label_to_entry:
+                    entry = self.label_to_entry[reached_label]
                     entry.update(covered_nodes, amount_covered)
                     self.prioqueue.add_task(entry, -entry.getFittness())
-                else:
-                    self.__addNodeToQueue(neighbour, covered_nodes, amount_covered)
+                elif extension_vec[reached_label] == 1:
+                    self.__addLabelToQueue(reached_label, covered_nodes, amount_covered)
             pass
             iteration = iteration + 1
             if printer is not None:
@@ -89,11 +64,11 @@ class GreedySearch:
 
         return sol
 
-    def __addNodeToQueue(
-        self, node: Node, covered_nodes: np.array, amount_covered: int
+    def __addLabelToQueue(
+        self, label: int, covered_nodes: np.array, amount_covered: int
     ) -> None:
-        entry = Entry(node)
+        entry = Entry(graph=self.graph, label=label)
         entry.update(covered_nodes, amount_covered)
 
         self.prioqueue.add_task(entry, -entry.getFittness())
-        self.node_to_entry[node] = entry
+        self.label_to_entry[label] = entry

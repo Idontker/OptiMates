@@ -1,15 +1,15 @@
-from graph.node import Node
+from graph.graph import Graph2
 import numpy as np
 
 
 class Entry:
-    def __init__(self, node: Node) -> None:
-        self.node = node
-        self.covering_nodes = node.getNeighbours()
-        self.covering_uncovered_nodes = len(node.getNeighbours())
+    def __init__(self, graph: Graph2, label: int) -> None:
+        self.graph = graph
+        self.label = label
+        self.covering_uncovered_nodes = 0
 
     def __str__(self):
-        return "covering: {}\tlabel: {}".format(-self.getFittness(), self.node)
+        return "covering: {}\tlabel: {}".format(-self.getFittness(), self.label)
 
     def getFittness(self) -> int:
         return self.covering_uncovered_nodes
@@ -23,4 +23,5 @@ class Entry:
         self.covering_uncovered_nodes = amount_covered_with_this - amount_covered
 
     def __extract_possible_coverings(self, covered_nodes: np.array):
-        return np.count_nonzero(self.covering_nodes + covered_nodes)
+        my_covered_nodes = self.graph.get_neighbour_vector(self.label)
+        return np.count_nonzero(my_covered_nodes + covered_nodes)

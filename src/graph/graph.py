@@ -1,187 +1,138 @@
-import logging
-from sphere.pointOnSphere import Point
-from graph.node import Node
-from typing import Callable, List
-from functools import partial
-from tqdm import tqdm
-
+from random import random
 import numpy as np
-import sphere.pointOnSphere as pos
 import math
-import random
-import csv
-import itertools
+from geometrics.ikosaeder import ikosaeder
 
 
 class Graph:
-    def __init__(self, cover_radius) -> None:
-        self.nodes = {}
-        self.nextLabel = 0
-        self.adjmatrix = None
-        self.reach = None
-        self.dist = None
+    def __init__(self, cover_radius: float, number_of_points: int) -> None:
+        self.points = None
+        self.adj_extensions_dic = {}
+        self.adj_neighbour_dic = {}
+        self.adj_reach_dic = {}
+
+        self.number_of_points = number_of_points
         self.cover_radius = cover_radius
         pass
 
-    def __len__(self) -> int:
-        return len(self.nodes)
+    # def create_adjmatrix(self) -> None:
+    #     self.adjmatrix = (self.dist < self.cover_radius).astype(np.int8)
 
-    def __str__(self) -> str:
-        return "number of Nodes: " + str(self.nextLabel)
+    def get_reach_vector(self, label) -> np.array:
+        if label not in self.adj_neighbour_dic:
+            self.update_vectors(label)
+        return self.adj_reach_dic[label]
 
-    def addNode(self, point: Point) -> None:
-        node = Node(point, self.nextLabel)
-        self.nodes[self.nextLabel] = node
-        self.nextLabel = self.nextLabel + 1
-        pass
+    def get_neighbour_vector(self, label) -> np.array:
+        if label not in self.adj_neighbour_dic:
+            self.update_neighbour(label)
+        return self.adj_neighbour_dic[label]
 
-    def addNodes(self, points: List[Point]) -> None:
-        for point in points:
-            self.addNode(point=point)
-        pass
+    def get_extensions_vector(self, label) -> np.array:
+        if label not in self.adj_extensions_dic:
+            self.update_vectors(label)
+        return self.adj_extensions_dic[label]
 
-    def getNode(self, label: int) -> Node:
-        if label < 0 or label >= self.nextLabel:
-            return None
-        else:
-            return self.nodes[label]
+    def pop_reach_vector(self, label) -> np.array:
+        if label not in self.adj_neighbour_dic:
+            self.update_vectors(label)
+        return self.adj_reach_dic.pop(label)
 
-    def getRandomNode(self) -> Node:
-        rad = random.randint(0, self.nextLabel - 1)
-        return self.nodes[rad]
+    def pop_neighbour_vector(self, label) -> np.array:
+        if label not in self.adj_neighbour_dic:
+            self.update_neighbour(label)
+        return self.adj_neighbour_dic.pop(label)
 
-    def getMatrix(self) -> np.array:
-        return self.adjmatrix
+    def pop_extensions_vector(self, label) -> np.array:
+        if label not in self.adj_extensions_dic:
+            self.update_vectors(label)
+        return self.adj_extensions_dic.pop(label)
 
-    def updateAllEdges(self) -> np.array:
-        """recalculate all edges
-        Runs in O( |V|^2 )
-        """
+    def update_neighbour(self, label) -> None:
+        d = self.get_distance_vector(label)
+        self.adj_neighbour_dic[label] = (d < self.cover_radius).astype(np.int8)
 
-        logging.info("Update all edges")
-        # create an emptry quadratic array (uninitialized)
-        number_of_nodes = len(self)
-        shape_of_matrix = (number_of_nodes, number_of_nodes)
-        # matrix = np.empty(shape=shape_of_matrix, dtype=np.int8)
-        dist = np.empty(shape=shape_of_matrix, dtype=np.float64)
+    def update_vectors(self, label) -> None:
+        d = self.get_distance_vector(label)
+        # range [0.8, 1.8]
+        # self.adj_extensions_dic[label] =  ( (d - 1.3 * self.cover_radius) < 0.5 * self.cover_radius).astype(
+        #     np.int8
+        # )
 
-        # recalculate all edges with the given neighbour_function
-        # update neighbours of each node if neighbour_function != 0
-        #
-        # Runs in O( |V|^2 )
-        # for (x,y) in tqdm(matrix.)
-        n1, n2 = self.nodes[0], self.nodes[1]
-
-        for i,j in tqdm(np.ndindex(number_of_nodes,number_of_nodes)):
-            is_neighbour_value = self.nodes[i].point.dist(self.nodes[j].point)  #self.neighbour_function(
-                    #n1,n2 #self.nodes[i], self.nodes[j]
-                #)
-            dist[i, j] = is_neighbour_value
-            dist[j, i] = is_neighbour_value
-            pass
-
-        self.dist = dist
-        self.adjmatrix = (dist < self.cover_radius).astype(np.int8)
-
-        for i in tqdm(range(number_of_nodes)):
-            self.nodes[i].setNeighbourVector(self.dist[i])
-
-        # for i in tqdm(range(number_of_nodes)):
-        # # for i in range(number_of_nodes):
-        #     for j in range(number_of_nodes):
-        #         is_neighbour_value = self.neighbour_function(
-        #             self.nodes[i], self.nodes[j]
-        #         )
-        #         matrix[i, j] = is_neighbour_value
-        #         pass
-        #     self.nodes[i].setNeighbourVector(matrix[i])
-        #     pass
-
-        logging.info("Done")
-        return self.dist
-
-    def save(self, filepath: str) -> None:
-        writer_nodes = csv.writer(
-            open(file=filepath + "-nodes.csv", mode="w", newline="")
+        ex_fak = math.sqrt(3) - 0.01
+        self.adj_extensions_dic[label] = (d < ex_fak * self.cover_radius).astype(
+            np.int8
         )
-        for label, node in self.nodes.items():
-            writer_nodes.writerow([label, node.point])
-        np.save(file=filepath + "-matrix.npy", arr=self.adjmatrix)
+        self.adj_reach_dic[label] = (d < 2 * self.cover_radius).astype(np.int8)
+
+    def get_distance_vector(self, label) -> np.array:
+        cartesian = self.points[:, 3:6]
+        other = cartesian[label]
+        vec = np.matmul(cartesian, np.transpose(other))
+        vec[label] = 1
+        return np.arccos(vec)
+
+    def gen_random_points(self) -> None:
+        self.points = np.array(
+            [self._create_random_point() for _ in range(self.number_of_points)]
+        )
         pass
+
+    def gen_iko_points(self, divisions=10):
+        iko = ikosaeder()
+        iko.subdivide(n=divisions)
+        self.points = iko.normalized_points()
+        self.number_of_points = len(self.points)
+        pass
+
+    def _create_point(self, r, theta, phi) -> np.array:
+        arr = np.array([r, theta, phi, 0, 0, 0])
+        arr[3] = r * math.sin(theta) * math.cos(phi)
+        arr[4] = r * math.sin(theta) * math.sin(phi)
+        arr[5] = r * math.cos(theta)
+        return arr
+
+    def _create_random_point(self) -> np.array:
+        phi = random() * 2 * math.pi
+        x = random() * 2 - 1
+        theta = np.arccos(x)
+
+        return self._create_point(1, theta, phi)
+
+    def _create_random_point_old(self) -> np.array:
+        theta = random() * 2 * math.pi
+        phi = random() * math.pi
+
+        return self._create_point(1, theta, phi)
+
+    def __len__(self) -> int:
+        return int(self.number_of_points)
 
 
 pass
 
 
-def load_graph_from(
-    path: str, radius: float = math.radians(3.5), neighbour_function=None
-) -> Graph:
-    if neighbour_function is None:
-        neighbour_function = partial(__default_distance, radius=radius)
-    g = Graph(neighbour_function)
+def save(g: Graph, filepath: str) -> None:
+    np.save(file=filepath + "-points.npy", arr=g.points)
+    f = open(file=filepath + "-settings.txt", mode="w", newline="")
+    f.write("number of points:" + str(g.number_of_points) + "\n")
+    f.write("cover radius:" + str(g.cover_radius))
+    f.flush()
+    f.close()
+    pass
 
+
+def load_graph_from(filepath: str) -> Graph:
     try:
-        csvfile = open(path + "-nodes.csv", mode="r")
+        f = open(file=filepath + "-settings.txt", mode="r", newline="")
     except:
-        print("File cannot be opened:", path + "-nodes.csv")
+        print("File cannot be opened:", str(filepath) + "-settings.txt")
         return None
+    line = f.readline()
+    N = int(line.split(":")[1])
+    line = f.readline()
+    r = float(line.split(":")[1])
 
-    g.adjmatrix = np.load(file=path + "-matrix.npy")
-
-    max_label = -1
-    reader_nodes = csv.reader(csvfile, delimiter=",")
-    for label, p in reader_nodes:
-        label = int(label)
-        if label > max_label:
-            max_label = label
-        node = Node(point=pos.parsePoint(p), label=label)
-        node.neighbours = g.adjmatrix[label]
-        g.nodes[label] = node
-        pass
-
-    g.nextLabel = max_label + 1
-
+    g = Graph(cover_radius=r, number_of_points=N)
+    g.points = np.load(file=filepath + "-points.npy")
     return g
-
-
-def create_default_graph_with_random_points(
-    sphere_radius: float = 1.0,
-    number_of_nodes: int = 100_000,
-    radius: float = math.radians(3.5),
-) -> Graph:
-    """Runs in O(|V|^3) = O(number_of_nodes + number_of_nodes + O(Graph.updateAllEdges))
-
-    using the following neighbour function `F`:
-    F(u, v) = 1     if arccos(u.point, v.point) < `radius`
-    F(u, v) = 0     otherwise
-    """
-
-    # Runs in O(number_of_nodes)
-    # create random points and add to list
-    list_of_points = list()
-    logging.info("Create {} Points".format(number_of_nodes))
-    for i in tqdm(range(number_of_nodes)):
-        random_point = pos.generateRandomPointOnSphere(sphere_radius)
-        list_of_points.append(random_point)
-        pass
-    logging.info("DONE")
-
-    # Runs in O(number_of_nodes)
-    # create graph and add nodes
-    logging.info("Create Gaph with {} nodes".format(number_of_nodes))
-    # neighbour_function = partial(__default_distance, radius=radius)
-    graph = Graph(radius)
-    for point in tqdm(list_of_points):
-        graph.addNode(point=point)
-    logging.info("DONE")
-
-    graph.updateAllEdges()
-    return graph
-
-
-def __default_distance(u: Node, v: Node, radius: float) -> int:
-    """radius in radians"""
-    if u.dist(v) < radius:
-        return 1
-    else:
-        return 0
