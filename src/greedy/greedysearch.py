@@ -1,13 +1,9 @@
 from typing import Callable, Optional
 
-from numpy.lib.function_base import cov
-from graph.graph2 import Graph2
-from graph.node import Node
-from greedy import prioqueue
-from greedy.entry2 import Entry
-from graph.solution2 import Solution
+from graph.graph import Graph
+from graph.solution import Solution
+from greedy.entry import Entry
 from greedy.prioqueue import PrioQueue
-import graph as graphclass
 import numpy as np
 import logging
 from tqdm import tqdm
@@ -20,7 +16,7 @@ PrinterFunc = Callable[[int, Solution], None]
 
 
 class GreedySearch:
-    def __init__(self, graph: Graph2) -> None:
+    def __init__(self, graph: Graph) -> None:
         self.graph = graph
 
     def findSolution(self, printer: Optional[PrinterFunc] = None) -> Solution:

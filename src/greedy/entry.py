@@ -1,9 +1,9 @@
-from graph.graph import Graph2
+from graph.graph import Graph
 import numpy as np
 
 
 class Entry:
-    def __init__(self, graph: Graph2, label: int) -> None:
+    def __init__(self, graph: Graph, label: int) -> None:
         self.graph = graph
         self.label = label
         self.covering_uncovered_nodes = 0

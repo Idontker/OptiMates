@@ -1,11 +1,11 @@
 from random import choices
-from graph.graph2 import Graph2
+from graph.graph import Graph
 import numpy as np
 import csv
 
 class Solution:
-    def __init__(self, graph2: Graph2, sol=None) -> None:
-        self.graph = graph2
+    def __init__(self, graph: Graph, sol=None) -> None:
+        self.graph = graph
 
         if sol != None:
             self.genome = sol.genome
