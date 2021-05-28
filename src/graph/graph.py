@@ -2,13 +2,19 @@ from random import random
 import numpy as np
 import math
 from geometrics.ikosaeder import ikosaeder
+import sys
 
 
 class Graph:
     def __init__(self, cover_radius: float, number_of_points: int) -> None:
         self.points = None
+        # packed bit Vektoren, welcher beim Greedy Search zu erweiternden Knoten anzeigt.
         self.adj_extensions_dic = {}
+
+        # packed bit Vektoren, welcher die überdeckten Knoten anzeigt
         self.adj_neighbour_dic = {}
+
+        # packed bit Vektoren, welcher die Konten anzeigt, dessen Kappe eine Überscheidung hat
         self.adj_reach_dic = {}
 
         self.number_of_points = number_of_points
@@ -18,6 +24,14 @@ class Graph:
     def __len__(self) -> int:
         return int(self.number_of_points)
 
+    def __sizeof__(self) -> int:
+        return (
+            sys.getsizeof(self.points)
+            + sys.getsizeof(self.adj_neighbour_dic)
+            + sys.getsizeof(self.adj_extensions_dic)
+            + sys.getsizeof(self.adj_reach_dic)
+        )
+
     ##############################
     ##############################
     # Updating and Getting Vectors
@@ -26,21 +40,32 @@ class Graph:
 
     def update_neighbour(self, label) -> None:
         d = self.get_distance_vector(label)
-        self.adj_neighbour_dic[label] = (d < self.cover_radius).astype(np.int8)
+        byte_vecktor = d < self.cover_radius
+        self.adj_neighbour_dic[label] = np.packbits(byte_vecktor)
+
+        ###  For non packed vectors ###
+        # self.adj_neighbour_dic[label] = byte_vecktor.astype(np.int8)
 
     def update_vectors(self, label) -> None:
         d = self.get_distance_vector(label)
         ex_fak = math.sqrt(3) - 0.01
-        self.adj_extensions_dic[label] = (d < ex_fak * self.cover_radius).astype(
-            np.int8
-        )
-        self.adj_reach_dic[label] = (d < 2 * self.cover_radius).astype(np.int8)
+        byte_extension = d < ex_fak * self.cover_radius
+        byte_reach = d < 2 * self.cover_radius
+        self.adj_extensions_dic[label] = np.packbits(byte_extension)
+        self.adj_reach_dic[label] = np.packbits(byte_reach)
+
+        ###  For non packed vectors ###
+        # self.adj_extensions_dic[label] = byte_extension.astype(np.int8)
+        # self.adj_reach_dic[label] = byte_reach.astype(np.int8)
 
     def get_distance_vector(self, label) -> np.array:
         cartesian = self.points[:, 3:6]
         other = cartesian[label]
         vec = np.matmul(cartesian, np.transpose(other))
+
+        # verhindert, dass arccos bei d(label, label) aufgrund Rundungsfehler fehlschlagen würde.
         vec[label] = 1
+
         return np.arccos(vec)
 
     ##############################
@@ -52,31 +77,37 @@ class Graph:
     def get_reach_vector(self, label) -> np.array:
         if label not in self.adj_neighbour_dic:
             self.update_vectors(label)
+        return np.unpackbits(self.adj_reach_dic[label])
         return self.adj_reach_dic[label]
 
     def get_neighbour_vector(self, label) -> np.array:
         if label not in self.adj_neighbour_dic:
             self.update_neighbour(label)
+        return np.unpackbits(self.adj_neighbour_dic[label])
         return self.adj_neighbour_dic[label]
 
     def get_extensions_vector(self, label) -> np.array:
         if label not in self.adj_extensions_dic:
             self.update_vectors(label)
+        return np.unpackbits(self.adj_extensions_dic[label])
         return self.adj_extensions_dic[label]
 
     def pop_reach_vector(self, label) -> np.array:
         if label not in self.adj_neighbour_dic:
             self.update_vectors(label)
+        return np.unpackbits(self.adj_reach_dic.pop(label))
         return self.adj_reach_dic.pop(label)
 
     def pop_neighbour_vector(self, label) -> np.array:
         if label not in self.adj_neighbour_dic:
             self.update_neighbour(label)
+        return np.unpackbits(self.adj_neighbour_dic.pop(label))
         return self.adj_neighbour_dic.pop(label)
 
     def pop_extensions_vector(self, label) -> np.array:
         if label not in self.adj_extensions_dic:
             self.update_vectors(label)
+        return np.unpackbits(self.adj_extensions_dic.pop(label))
         return self.adj_extensions_dic.pop(label)
 
     ### Generating points on graph ###
