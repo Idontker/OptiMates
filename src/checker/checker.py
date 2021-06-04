@@ -31,7 +31,7 @@ def readSolution(solutionFilePath, n=3):
 # solution = Liste der Mittelpunkte der Kappen (List[tuple(n)])
 # alpha = Öffnungswinkel der Kappen (float, >= 0, <= 360)
 # n = Dimension der Kugel (int, >= 1)
-def checkSolution(solution, alpha, n=3):
+def checkSolution(solution, alpha, n=3, printing=True):
 	# Erzeuge ein Gurobi-Modell um zu überprüfen,
 	# ob die Überdeckung vollständig ist
 	# (Annahme: die Kappen sind "offen")
@@ -65,11 +65,13 @@ def checkSolution(solution, alpha, n=3):
 	# ob die Überdeckung vollständig
 	model.optimize()
 	if model.status == 2:
-		print('Die Überdeckung ist nicht vollständig.\nDer folgende Punkt ist nicht überdeckt:')
+		if printing:
+			print('Die Überdeckung ist nicht vollständig.\nDer folgende Punkt ist nicht überdeckt:')
 		arr = np.array([0.0,0.0,0.0])
 		
 		for i in range(n):
-			print(f'y{i} = ', y[i].X)
+			if printing:
+				print(f'y{i} = ', y[i].X)
 			arr[i] = y[i].X
 		return arr
 

@@ -42,7 +42,7 @@ r = math.radians(durchmeser / 2)
 logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
 
-N = 50_000
+N = 20_000
 
 save = False
 # graph_path = None
@@ -153,10 +153,25 @@ s.save(solutionFilePath)
 solution = checker.readSolution(solutionFilePath)
 print("Durchmesser:", durchmeser)
 logging.info("Solution for {}:".format(durchmeser))
-for p in solution:
-    logging.info(p)
+# for p in solution:
+#     logging.info(p)
 
+# int um die loecher zu zaehlen
+added = 0
+
+# looking for missing points with "do while"
+while True:
+    arr = checker.checkSolution(solution, durchmeser, printing=False)
+    if arr is None:
+        break
+    else:
+        added = added + 1
+        solution.append(arr)
+
+logging.info("DONE")
+logging.info("DONE")
+logging.info("DONE")
+logging.info("Due to holes additionally added points {}".format(added))
+logging.info("Number of needed shperical caps: {}".format(len(solution)))
 # Überprüfe die Lösung
 checker.checkSolution(solution, durchmeser)
-
-import test
