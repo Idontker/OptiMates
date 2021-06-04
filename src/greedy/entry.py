@@ -23,11 +23,9 @@ class Entry:
         self.covering_uncovered_nodes = amount_covered_with_this - amount_covered
 
     def __extract_possible_coverings(self, covered_nodes: np.array):
+        # TODO: geht wahrscheinlich auch mit packed, aber covered nodes ist gerade noch ein float64 vector
         my_covered_nodes = self.graph.get_neighbour_vector(self.label)
-        bit_vector_or = np.bitwise_or(covered_nodes, my_covered_nodes)
-        # TODO: geht wahrscheinlich auch ohne unpacked
-        vec = np.unpackbits(bit_vector_or)
-        return np.count_nonzero(vec)
+        return np.count_nonzero(my_covered_nodes + covered_nodes)
 
         ###  For non packed vectors ###
         # my_covered_nodes = self.graph.get_neighbour_vector(self.label)

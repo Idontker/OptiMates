@@ -3,16 +3,20 @@ import numpy as np
 import math
 from geometrics.ikosaeder import ikosaeder
 import sys
+import graph.total_size as total
 
 
 class Graph:
     def __init__(self, cover_radius: float, number_of_points: int) -> None:
         self.points = None
-        # packed bit Vektoren, welcher beim Greedy Search zu erweiternden Knoten anzeigt.
-        self.adj_extensions_dic = {}
-
         # packed bit Vektoren, welcher die überdeckten Knoten anzeigt
         self.adj_neighbour_dic = {}
+
+        # TODO: Mit der aktuellen Umsetzung werden reach und extension nur einmal berechnet und nur ein mal verwendet.
+        # Man könnte diese direkt ausgeben und würde sich ganz viel speicher stuff sparen
+
+        # packed bit Vektoren, welcher beim Greedy Search zu erweiternden Knoten anzeigt.
+        self.adj_extensions_dic = {}
 
         # packed bit Vektoren, welcher die Konten anzeigt, dessen Kappe eine Überscheidung hat
         self.adj_reach_dic = {}
@@ -26,10 +30,10 @@ class Graph:
 
     def __sizeof__(self) -> int:
         return (
-            sys.getsizeof(self.points)
-            + sys.getsizeof(self.adj_neighbour_dic)
-            + sys.getsizeof(self.adj_extensions_dic)
-            + sys.getsizeof(self.adj_reach_dic)
+            total.total_size(self.points)
+            + total.total_size(self.adj_neighbour_dic)
+            + total.total_size(self.adj_extensions_dic)
+            + total.total_size(self.adj_reach_dic)
         )
 
     ##############################
@@ -123,6 +127,58 @@ class Graph:
         iko.subdivide(n=divisions)
         self.points = iko.normalized_points()
         self.number_of_points = len(self.points)
+        pass
+
+    def gen_archimedic_spiral(
+        self,
+        speed=100,
+        N=1000,
+        lower_bound=0,
+        upper_bound=1,
+    ):
+        """theta in [arccos(lower_bound), arccos(upperbound)]"""
+
+        X = np.linspace(lower_bound, upper_bound, N)
+        thetas = np.arccos(X)
+        phis = speed * thetas
+
+        arr = np.array(
+            [
+                np.ones(len(thetas)),
+                thetas,
+                phis,
+                np.sin(thetas) * np.cos(phis),
+                np.sin(thetas) * np.sin(phis),
+                np.cos(thetas),
+            ]
+        )
+        # np.transpose wechselt die Dimmensionen, sodass bei Iterationen über die Zeilen(einzelne Punkte) und nicht die Spalten(Theta-vektor, Phi-vektor, ...) iteriert wird
+        self.points = np.transpose(arr)
+        pass
+
+    # sieht für mich nach der archimedischen Spirale aus mit speed L = sqrt(N*pi)
+    def gen_bauer_spiral(self, N):
+        L = np.sqrt(N * np.pi)
+        k = np.array(range(1, N + 1))
+        z = 1 - (2 * k - 1) / N
+        phi = np.arccos(z)
+        theta = L * phi
+        x = np.sin(phi) * np.cos(theta)
+        y = np.sin(phi) * np.sin(theta)
+
+        arr = np.array(
+            [
+                np.ones(N),
+                phi,
+                theta,
+                np.sin(phi) * np.cos(theta),
+                np.sin(phi) * np.sin(theta),
+                z,
+            ]
+        )
+
+        # np.transpose wechselt die Dimmensionen, sodass bei Iterationen über die Zeilen(einzelne Punkte) und nicht die Spalten(Theta-vektor, Phi-vektor, ...) iteriert wird
+        self.points = np.transpose(arr)
         pass
 
     def _create_point(self, r, theta, phi) -> np.array:
