@@ -7,7 +7,7 @@ import graph.total_size as total
 
 
 class Graph:
-    def __init__(self, cover_radius: float, number_of_points: int) -> None:
+    def __init__(self, cover_radius: float, number_of_points: int,exploration_factor=1.5) -> None:
         self.points = None
         # packed bit Vektoren, welcher die überdeckten Knoten anzeigt
         self.adj_neighbour_dic = {}
@@ -23,6 +23,7 @@ class Graph:
 
         self.number_of_points = number_of_points
         self.cover_radius = cover_radius
+        self.exploration_factor = exploration_factor
         pass
 
     def __len__(self) -> int:
@@ -52,8 +53,7 @@ class Graph:
 
     def update_vectors(self, label) -> None:
         d = self.get_distance_vector(label)
-        ex_fak = math.sqrt(3) - 0.01
-        byte_extension = d < ex_fak * self.cover_radius
+        byte_extension = d < self.exploration_factor * self.cover_radius
         byte_reach = d < 2 * self.cover_radius
         self.adj_extensions_dic[label] = np.packbits(byte_extension)
         self.adj_reach_dic[label] = np.packbits(byte_reach)

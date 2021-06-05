@@ -75,7 +75,7 @@ starttime = time.time()
 g = graph.load_graph_from(filepath=graph_path)
 
 if g is None:
-    g = Graph(cover_radius=r, number_of_points=N)
+    g = Graph(cover_radius=r, exploration_factor=1, number_of_points=N)
     ### Random points version
     # g.gen_random_points()
 

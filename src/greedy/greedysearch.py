@@ -38,6 +38,7 @@ class GreedySearch:
             curr_label = curr_entry.label
             sol.addNodeByLabel(curr_label)
 
+            # where gibt nen array von arrays, daher braucht es das [0]
             reached_labels = np.where(self.graph.pop_reach_vector(curr_label) != 0)[0]
             extension_vec = self.graph.pop_extensions_vector(curr_label)
             amount_covered = sol.countCoveredNodes()
