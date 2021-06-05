@@ -41,7 +41,7 @@ class Graph:
         ###  For non packed vectors ###
         # self.adj_neighbour_dic[label] = byte_vector.astype(np.int8)
 
-    def get_extension_and_reach(self, label) -> Tuple(np.array, np.array):
+    def get_extension_and_reach(self, label) -> tuple[np.array, np.array]:
         d = self.get_distance_vector(label)
         byte_extension = d < self.exploration_factor * self.cover_radius
         byte_reach = d < 2 * self.cover_radius
