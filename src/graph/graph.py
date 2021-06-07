@@ -14,12 +14,21 @@ class Graph:
         self, cover_radius: float, number_of_points: int, exploration_factor=1.5
     ) -> None:
         self.points = None
-        # packed bit Vektoren, welcher die überdeckten Knoten anzeigt
-        self.adj_neighbour_dic = {}
-
+        self.adj_neighbour = None
         self.number_of_points = number_of_points
         self.cover_radius = cover_radius
         self.exploration_factor = exploration_factor
+
+        # TODO: Schnittpunkte hinzufuegbar machen
+        # es ist nicht möglich Punkte zur Packed matrix hinzufügen, die nicht nur 0 und 1 Einträge haben
+        # die Idee ist es eine zweite und dritte Matrix zu erstellen. Hier kann man die Vektoren so anlegen,
+        # dass man mit dem Zugriff einen Vektor erhält, der angibt wie viele Schnittpunkte und wie viele
+        # Wenn man die Schnittpunkte nicht als mögliche positionen betrachtet sollte es nicht zu viel aufwand sein
+        # Man müsste nur die drei Punkte hinzufügen: 2 Schnittpunkte der Kugeln um zwei Mittelpunkte mit der Sphere
+        # und den Punkt zwischen den Mittelpunkten (M1 + M2) / ||M1+M2||. Die Schnittpunkte können mit *alpha* bewertet werden
+        # die Mittelpunkte haben einen negativen Einfluss auf die Knoten. Die Mittelpunkte verhindern, dass man genau zwischen
+        # die gesamte Schnittfläche doppelt überdeckt wird
+
         pass
 
     def __len__(self) -> int:
@@ -35,7 +44,9 @@ class Graph:
     ##############################
 
     def update_all_neighbours(self, steps: int = 1) -> None:
-        stepsize = np.linspace(num=steps+1, start=0, stop=len(self.points)).astype(int)
+        stepsize = np.linspace(num=steps + 1, start=0, stop=len(self.points)).astype(
+            int
+        )
 
         arr = None
         other = self.points[:, 3:6]
@@ -69,12 +80,19 @@ class Graph:
         pass
 
     def update_neighbour(self, label) -> None:
+        # TODO: wie kann ich einzelne Knoten zur adj matrix hinzufuegen?
         d = self.get_distance_vector(label)
         byte_vector = d < self.cover_radius
         self.adj_neighbour_dic[label] = np.packbits(byte_vector)
 
         ###  For non packed vectors ###
         # self.adj_neighbour_dic[label] = byte_vector.astype(np.int8)
+
+    ##############################
+    ##############################
+    ########## Getters ###########
+    ##############################
+    ##############################
 
     def get_extension_and_reach(self, label) -> tuple[np.array, np.array]:
         d = self.get_distance_vector(label)
@@ -92,24 +110,8 @@ class Graph:
 
         return np.arccos(vec)
 
-    ##############################
-    ##############################
-    ########## Getters ###########
-    ##############################
-    ##############################
-
     def get_neighbour_vector(self, label) -> np.array:
         return np.unpackbits(self.adj_neighbour[label])
-        if label not in self.adj_neighbour_dic:
-            self.update_neighbour(label)
-        return np.unpackbits(self.adj_neighbour_dic[label])
-        return self.adj_neighbour_dic[label]
-
-    def pop_neighbour_vector(self, label) -> np.array:
-        if label not in self.adj_neighbour_dic:
-            self.update_neighbour(label)
-        return np.unpackbits(self.adj_neighbour_dic.pop(label))
-        return self.adj_neighbour_dic.pop(label)
 
     ### Generating points on graph ###
 
