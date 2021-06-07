@@ -2,13 +2,17 @@ from random import random
 from typing import Tuple
 import numpy as np
 import math
+
+from tqdm import tqdm
 from geometrics.ikosaeder import ikosaeder
 import sys
 import graph.total_size as total
 
 
 class Graph:
-    def __init__(self, cover_radius: float, number_of_points: int,exploration_factor=1.5) -> None:
+    def __init__(
+        self, cover_radius: float, number_of_points: int, exploration_factor=1.5
+    ) -> None:
         self.points = None
         # packed bit Vektoren, welcher die überdeckten Knoten anzeigt
         self.adj_neighbour_dic = {}
@@ -22,16 +26,47 @@ class Graph:
         return int(self.number_of_points)
 
     def __sizeof__(self) -> int:
-        return (
-            total.total_size(self.points)
-            + total.total_size(self.adj_neighbour_dic)
-        )
+        return total.total_size(self.points) + total.total_size(self.adj_neighbour)
 
     ##############################
     ##############################
     # Updating and Getting Vectors
     ##############################
     ##############################
+
+    def update_all_neighbours(self, steps: int = 1) -> None:
+        stepsize = np.linspace(num=steps+1, start=0, stop=len(self.points)).astype(int)
+
+        arr = None
+        other = self.points[:, 3:6]
+        for i in tqdm(range(len(stepsize) - 1)):
+            a, b = stepsize[i], stepsize[i + 1]
+            cartesian_slice = self.points[a:b, 3:6]
+
+            matrix = np.matmul(cartesian_slice, np.transpose(other))
+
+            # verhindert, dass arccos bei d(label, label) aufgrund Rundungsfehler fehlschlagen würde.
+            # np.fill_diagonal(matrix, 1)
+
+            # ugly bugfix, da die diagonale auf 1 zu setzten nicht so trivial ist (diagonale nach dem zweiten slice fängt in der mitte an)
+            matrix[np.where(matrix > 1)] = 1
+
+            dist = np.arccos(matrix)
+            # transform to bit vector
+            byte_matrix = dist < self.cover_radius
+            # -1 zeigt an, dass es vectorweise geht und nicht erst gefattend wird
+            packed = np.packbits(byte_matrix, axis=-1)
+            # packed = byte_matrix
+
+            # zur temporären Lösung hinzufügen
+            if arr is None:
+                arr = packed
+            else:
+                arr = np.vstack((arr, packed))
+
+            pass
+        self.adj_neighbour = arr
+        pass
 
     def update_neighbour(self, label) -> None:
         d = self.get_distance_vector(label)
@@ -64,6 +99,7 @@ class Graph:
     ##############################
 
     def get_neighbour_vector(self, label) -> np.array:
+        return np.unpackbits(self.adj_neighbour[label])
         if label not in self.adj_neighbour_dic:
             self.update_neighbour(label)
         return np.unpackbits(self.adj_neighbour_dic[label])
@@ -74,7 +110,6 @@ class Graph:
             self.update_neighbour(label)
         return np.unpackbits(self.adj_neighbour_dic.pop(label))
         return self.adj_neighbour_dic.pop(label)
-
 
     ### Generating points on graph ###
 

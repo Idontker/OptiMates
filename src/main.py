@@ -37,12 +37,12 @@ def log_time(tastname, timediff):
 setupLogger.setup("Run main.py")
 
 R = 1
-durchmeser = 2 * 37.4  # deg
+durchmeser = 2 * 70.6  # deg
 r = math.radians(durchmeser / 2)
 logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
 
-N = 20_000
+N = 40_000
 
 save = False
 # graph_path = None
@@ -75,7 +75,7 @@ starttime = time.time()
 g = graph.load_graph_from(filepath=graph_path)
 
 if g is None:
-    g = Graph(cover_radius=r, exploration_factor=2, number_of_points=N)
+    g = Graph(cover_radius=r, exploration_factor=math.sqrt(3), number_of_points=N)
     ### Random points version
     # g.gen_random_points()
 
@@ -89,6 +89,13 @@ if g is None:
     # g.gen_iko_points(divisions=6)
     # N = g.number_of_points
     # print("number of nodes:", g.number_of_points)
+    
+    if N <= 15_000: 
+        steps = 1
+    else: 
+        steps = 1 + int(N/10_000)
+    print("Steps used:", steps)
+    g.update_all_neighbours(steps=steps)
     if save:
         graph.save(g2=g, filepath=graph_path)
 
@@ -118,12 +125,14 @@ def printer(index: int, sol: Solution, stepsize: int = 100, stepsize_ram: int = 
             + "\tof "
             + str(N)
         )
-    if index % stepsize_ram == 0:
+    if index % stepsize_ram == 1:
+        g_size = sys.getsizeof(g)
         logging.debug(
-            "used spac: {:.3e} MB|\t{:.3e} MB per individual|\t{:.3e} MB/N".format(
-                sys.getsizeof(g) / (1024 ** 2),
-                sys.getsizeof(g) / (1024 ** 2) / len(g.adj_neighbour_dic),
-                sys.getsizeof(g) / (1024 ** 2) / N,
+            # "used spac: {:.3e} MB|\t{:.3e} MB per individual|\t{:.3e} MB/N".format(
+            "used spac: {:.3e} MB|\t{:.3e} MB/N".format(
+                g_size / (1024 ** 2),
+                # sys.getsizeof(g) / (1024 ** 2) / len(g.adj_neighbour_dic),
+                g_size / (1024 ** 2) / N,
             )
         )
 
