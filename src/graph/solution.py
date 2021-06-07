@@ -11,8 +11,8 @@ class Solution:
             self.genome = sol.genome
             self.covering_vec = sol.covering_vec
         else:
-            self.genome = np.zeros(len(self.graph))
-            self.covering_vec = np.zeros(len(self.graph))
+            self.genome = np.zeros(len(self.graph)).astype(int)
+            self.covering_vec = np.zeros(len(self.graph)).astype(int)
 
     def __str__(self) -> str:
         return str(np.where(self.genome != 0)[0])
