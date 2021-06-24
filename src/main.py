@@ -37,14 +37,14 @@ def log_time(tastname, timediff):
 setupLogger.setup("Run main.py")
 
 R = 1
-durchmeser = 2 * 1.75  # deg
+durchmeser = 2 * 13  # deg
+intersection_weight = 1
 r = math.radians(durchmeser / 2)
 logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
 
 N = 20_000
 
-intersection_weight = 100
 
 save = False
 # graph_path = None
@@ -103,8 +103,8 @@ if g is None:
     if save:
         graph.save(g=g, filepath=graph_path)
 
-timediff = time.time() - starttime
-log_time("graph creation", timediff)
+time_graph = time.time() - starttime
+log_time("graph creation", time_graph)
 
 # vis.surface_spere()
 # for p in g.points:
@@ -165,8 +165,8 @@ gs = GreedySearch(graph=g)
 # s = gs.findSolution(myPrinter)
 s = gs.findSolution()
 
-timediff = time.time() - starttime
-log_time("greedy search", timediff)
+time_greedy = time.time() - starttime
+log_time("greedy search", time_greedy)
 
 
 logging.info(s)
@@ -186,6 +186,9 @@ logging.info("Solution for {}:".format(durchmeser))
 #     logging.info(p)
 
 # int um die loecher zu zaehlen
+
+starttime = time.time()
+
 added = 0
 
 # looking for missing points with "do while"
@@ -197,8 +200,15 @@ while True:
         added = added + 1
         solution.append(arr)
 
+
+time_holes = time.time() - starttime
+
 logging.info("=========DONE=========")
 logging.info("Due to holes additionally added points {}".format(added))
 logging.info("Number of needed shperical caps: {}".format(len(solution)))
+logging.info("Time to create the graph:\t{}".format(time_graph))
+logging.info("Time of gready search:\t{}".format(time_greedy))
+logging.info("Time of filling holes:\t{}".format(time_holes))
+
 # Überprüfe die Lösung
 checker.checkSolution(solution, durchmeser)

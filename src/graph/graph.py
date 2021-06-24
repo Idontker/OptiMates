@@ -197,7 +197,7 @@ class Graph:
     ##############################
     ##############################
 
-    def get_extension_and_reach(self, label) -> tuple[np.array, np.array]:
+    def get_extension_and_reach(self, label):
         d = self.get_distance_vector(label)
         byte_extension = d < self.exploration_factor * self.cover_radius
         byte_reach = d < 2 * self.cover_radius
