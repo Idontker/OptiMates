@@ -37,16 +37,18 @@ def log_time(tastname, timediff):
 setupLogger.setup("Run main.py")
 
 R = 1
-durchmeser = 2 * 70.6  # deg
+durchmeser = 2 * 1.75  # deg
 r = math.radians(durchmeser / 2)
 logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
 
-N = 40_000
+N = 20_000
+
+intersection_weight = 100
 
 save = False
 # graph_path = None
-graph_path = ".\\graphsave\\graphsave_" + str(N) + "_" + str(durchmeser) + "_01"
+graph_path = ".\\graphsave\\graphsave_spiral_" + str(N) + "_" + str(durchmeser) + "_01"
 solutionFilePath = ".\\sols\\solution_" + str(N) + "_" + str(durchmeser) + "_01.csv"
 
 # savety first
@@ -75,7 +77,7 @@ starttime = time.time()
 g = graph.load_graph_from(filepath=graph_path)
 
 if g is None:
-    g = Graph(cover_radius=r, exploration_factor=math.sqrt(3), number_of_points=N)
+    g = Graph(cover_radius=r, exploration_factor=math.sqrt(3), number_of_points=N, intersection_weight=intersection_weight)
     ### Random points version
     # g.gen_random_points()
 
@@ -89,15 +91,17 @@ if g is None:
     # g.gen_iko_points(divisions=6)
     # N = g.number_of_points
     # print("number of nodes:", g.number_of_points)
-    
-    if N <= 15_000: 
+
+    # TODO: make it right
+    if N <= 15_000:
         steps = 1
-    else: 
-        steps = 1 + int(N/10_000)
-    print("Steps used:", steps)
+    else:
+        steps = 1 + int(N / 10_000)
+    # print("Steps used:", steps)
     g.update_all_neighbours(steps=steps)
+    # g.update_all_neighbours(steps=1)
     if save:
-        graph.save(g2=g, filepath=graph_path)
+        graph.save(g=g, filepath=graph_path)
 
 timediff = time.time() - starttime
 log_time("graph creation", timediff)
@@ -125,6 +129,21 @@ def printer(index: int, sol: Solution, stepsize: int = 100, stepsize_ram: int = 
             + "\tof "
             + str(N)
         )
+        intersects = sol.graph.intersection_neighbours
+        mids = sol.graph.mid_neighbours
+        if intersects is not None:
+            logging.debug(
+                "\t inter shape:{}".format(
+                    intersects.shape,
+                )
+            )
+        if mids is not None:
+            logging.debug(
+                "\t mids shape:{}".format(
+                    mids.shape,
+                )
+            )
+
     if index % stepsize_ram == 1:
         g_size = sys.getsizeof(g)
         logging.debug(
@@ -143,7 +162,8 @@ myPrinter = partial(printer, stepsize=1)
 starttime = time.time()
 
 gs = GreedySearch(graph=g)
-s = gs.findSolution(myPrinter)
+# s = gs.findSolution(myPrinter)
+s = gs.findSolution()
 
 timediff = time.time() - starttime
 log_time("greedy search", timediff)
