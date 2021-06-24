@@ -7,6 +7,7 @@ from greedy.prioqueue import PrioQueue
 import numpy as np
 import logging
 from tqdm import tqdm
+from geometrics import three_sphere_intersection as intersect
 
 
 PrinterFunc = Callable[[int, Solution], None]
@@ -33,19 +34,63 @@ class GreedySearch:
 
             # get best by heuristcs / fittness
             curr_entry = self.prioqueue.pop_task()
-            logging.debug("\t\t\t\t\t\t" + str(curr_entry))
+            logging.debug(
+                "\titer:"
+                + str(iteration)
+                + "\tcovered:"
+                + str(sol.countCoveredNodes())
+                + "\t"
+                + str(curr_entry)
+            )
 
             curr_label = curr_entry.label
             sol.addNodeByLabel(curr_label)
+            sol_labels = sol.getUsedLabels()
 
-            reached_vec , extension_vec = self.graph.get_extension_and_reach(curr_label)
+            # fuege Schnittpunkte zu den Punkten hinzu
+            p1 = self.graph.points[curr_label]
+            p1 = p1[3:6]  # extrahiere karthesische Koordinaten
+            for sol_label in sol_labels:
+                if sol_label == curr_entry:
+                    continue  # skip Identitaet
+
+                p2 = self.graph.points[sol_label]
+                p2 = p2[3:6]  # extrahiere karthesische Koordinaten
+                # find intersections
+                s = intersect.find_aequidist_points_on_sphere(
+                    p1, p2, self.graph.cover_radius, deg=False
+                )
+                # dist = np.arccos(np.matmul(p1, np.transpose(p2)))
+
+                # teste, ob auch wirklich Schnittpunkte vorhanden sind
+                if s is not None:
+                    # einfuegen dieser in den Algo
+                    # print("\nl1:{}  l2:{}".format(curr_label, sol_label))
+                    # print("p1:{}    p2:{}   d:{}".format(p1, p2, dist))
+                    # print("s1:{}    s2:{}".format(s[0], s[1]))
+                    # print(
+                    #     (
+                    #         "d(p1,s1):{}\td(p1,s2):{}\n" + "d(p2,s1):{}\td(p2,s1):{}"
+                    #     ).format(
+                    #         np.arccos(np.matmul(p1, np.transpose(s[0]))),
+                    #         np.arccos(np.matmul(p1, np.transpose(s[1]))),
+                    #         np.arccos(np.matmul(p2, np.transpose(s[0]))),
+                    #         np.arccos(np.matmul(p2, np.transpose(s[1]))),
+                    #     )
+                    # )
+                    self.graph.add_intersection_point(s[0], s[1])
+                    self.graph.add_mid_point(p1, p2)
+                pass
+
+            reached_vec, extension_vec = self.graph.get_extension_and_reach(curr_label)
             # where gibt nen array von arrays, daher braucht es das [0]
             reached_labels = np.where(reached_vec != 0)[0]
             amount_covered = sol.countCoveredNodes()
             covered_nodes = sol.covering_vec
 
             # update prioqueue
-            for reached_label in tqdm(reached_labels):
+            # for reached_label in tqdm(reached_labels):
+            for reached_label in reached_labels:
                 if sol.containsLabel(reached_label):
                     pass
                 elif reached_label in self.label_to_entry:

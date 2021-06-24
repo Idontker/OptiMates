@@ -39,9 +39,11 @@ def find_aequidist_points_on_sphere(p1, p2, r, deg: bool = True, R=1):
     if ret_value:
         return ret_value
     else:
-        raise RuntimeError(
-            "In the generated example the first two spheres do not intersect; no 3-sphere intersection is possible."
-        )
+        None
+
+        # raise RuntimeError(
+        #     "In the generated example the first two spheres do not intersect; no 3-sphere intersection is possible."
+        # )
 
 
 def get_spanning_vectors_of_3d_plane(n):
@@ -230,17 +232,20 @@ class Sphere:
 if __name__ == "__main__":
     # Create the three 3d spheres to check for intersection
     print("Generating 3 random spheres.")
-    p1 = np.array([0, 0, 0])
-    p2 = np.array([0, 0, 1])
+    # p1 = np.array([0, 0, 0])
+    # p2 = np.array([0, 0, 1])
+    p1 = np.array([0,0,0])
+    p2 = np.array([0.03515327, 0.01279677, 0.9993])
 
-    phi, theta = 0, np.deg2rad(20)
-    p3 = np.array(
-        [np.sin(theta) * np.sin(phi), np.sin(theta) * np.cos(phi), np.cos(theta)]
-    )
+    # phi, theta = 0, np.deg2rad(20)
+    # p3 = np.array(
+    #     [np.sin(theta) * np.sin(phi), np.sin(theta) * np.cos(phi), np.cos(theta)]
+    # )
+    p3 = np.array([-0.01138562, 0.00838794, 0.9999])
 
     R = 1
 
-    alpha = np.deg2rad(15)
+    alpha = np.deg2rad(13.6)
     r = 2 * R * np.sin(alpha / 2)
 
     spheres = [Sphere(p1, R), Sphere(p2, r), Sphere(p3, r)]

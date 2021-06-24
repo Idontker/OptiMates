@@ -3,6 +3,7 @@ from graph.graph import Graph
 import numpy as np
 import csv
 
+
 class Solution:
     def __init__(self, graph: Graph, sol=None) -> None:
         self.graph = graph
@@ -17,12 +18,18 @@ class Solution:
     def __str__(self) -> str:
         return str(np.where(self.genome != 0)[0])
 
+    def getUsedLabels(self) -> np.array:
+        return np.where(self.genome == 1)[0]
+
     def containsLabel(self, label: int) -> bool:
         return self.genome[label] == 1
 
     def addNodeByLabel(self, label: int) -> int:
         self.genome[label] = 1
-        self._updateCoverings(self.graph.pop_neighbour_vector(label))
+        # actuell nicht mehr gebracuht, da der Graph alle Nachbar Vectoren selbst verwaltet
+        # es sparrt auch kaum speicherplatz, da deutlich mehr Knoten betrachtet werden, wie 
+        self._updateCoverings(self.graph.get_neighbour_vector(label))
+        self.graph.delect_intersects(label)
 
     def removeNodeByLabel(self, label: int) -> int:
         self.genome[label] = 0
@@ -32,7 +39,7 @@ class Solution:
         # TODO
 
     def _updateCoverings(self, vec: np.array) -> None:
-        self.covering_vec = self.covering_vec + vec 
+        self.covering_vec = self.covering_vec + vec
         pass
 
     def countCoveredNodes(self) -> int:
@@ -42,10 +49,9 @@ class Solution:
     def isFullCover(self) -> bool:
         return self.countCoveredNodes() == len(self.graph)
 
-    def save(self, filepath:str) -> None:
+    def save(self, filepath: str) -> None:
         writer_nodes = csv.writer(
-            open(file=filepath, mode="w", newline=""),
-            delimiter=";" 
+            open(file=filepath, mode="w", newline=""), delimiter=";"
         )
         for label in np.where(self.genome != 0)[0]:
             point = self.graph.points[label]

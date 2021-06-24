@@ -2,6 +2,7 @@ from random import random
 from typing import Tuple
 import numpy as np
 import math
+from numpy.core.numeric import indices
 
 from tqdm import tqdm
 from geometrics.ikosaeder import ikosaeder
@@ -11,13 +12,27 @@ import graph.total_size as total
 
 class Graph:
     def __init__(
-        self, cover_radius: float, number_of_points: int, exploration_factor=1.5
+        self,
+        cover_radius: float,
+        number_of_points: int,
+        exploration_factor=1.5,
+        intersection_weight=1000,
     ) -> None:
+        # graphs attributes
         self.points = None
         self.adj_neighbour = None
+
+        # settings for the graph
         self.number_of_points = number_of_points
         self.cover_radius = cover_radius
         self.exploration_factor = exploration_factor
+
+        # attributes for the weighted intersection search
+        # TODO: rename - neighbours macht keinen Sinn, da es echte Puntke sind
+        self.intersection_neighbours = None
+        self.mid_neighbours = None
+        self.intersection_weight = intersection_weight
+        self.mid_neg_weight = -intersection_weight
 
         # TODO: Schnittpunkte hinzufuegbar machen
         # es ist nicht möglich Punkte zur Packed matrix hinzufügen, die nicht nur 0 und 1 Einträge haben
@@ -37,6 +52,94 @@ class Graph:
     def __sizeof__(self) -> int:
         return total.total_size(self.points) + total.total_size(self.adj_neighbour)
 
+    ##############################
+    ##############################
+    ##############################
+    # Intersection Part
+    ##############################
+    ##############################
+
+    # TODO: Wahrscheinlich macht es für die Laufzeit keinen Sinn ALLES im voraus zu berechnen
+    # es sparrt zwar später Zeit, aber die kann ich mir auch sparen, da ich alles nur einmal brauche
+
+    # def add_intersection_point(self, p1, p2=None):
+    #     # Wiederhole für beide Knoten
+    #     if p2 is not None:
+    #         self.add_intersection_point(p2)
+
+    #     # generiere nachbarvektor
+    #     # label sollte nicht genutzt werden, daher -1, sodass andernfalls ein Fehler fliegt
+    #     neigbours = self.get_distance_vector(label=-1, vector=p1) < self.cover_radius
+    #     neigbours = neigbours.astype(np.int8)
+
+    #     if self.intersection_neighbours is None:
+    #         self.intersection_neighbours = neigbours
+    #     else:
+    #         self.intersection_neighbours = np.vstack(
+    #             (self.intersection_neighbours, neigbours)
+    #         )
+    #     print(self.intersection_neighbours.shape)
+    #     print(self.intersection_neighbours)
+
+    def add_intersection_point(self, p1, p2):
+        if self.intersection_neighbours is None:
+            self.intersection_neighbours = p1
+        else:
+            self.intersection_neighbours = np.vstack((self.intersection_neighbours, p1))
+        self.intersection_neighbours = np.vstack((self.intersection_neighbours, p2))
+        # print("shape intersections: ", self.intersection_neighbours.shape)
+        # print(self.intersection_neighbours)
+
+    def add_mid_point(self, m1, m2):
+        """m1 und m2 sind die Mittelpunkte, zwischen denen der Mittelpunkt gelegt werden soll"""
+        mid = m1 + m2
+        mid = mid / np.linalg.norm(mid)
+
+        # print(m1, m2, "mid:", mid)
+        if self.mid_neighbours is None:
+            self.mid_neighbours = np.array(mid)
+        else:
+            self.mid_neighbours = np.vstack((self.mid_neighbours, mid))
+        # print("shape mids: ", self.mid_neighbours.shape)
+
+    def count_intersections_next_to(self, label):
+        if self.intersection_neighbours is None:
+            return 0
+        vec = self.points[label][3:6]
+        vec = np.matmul(self.intersection_neighbours, np.transpose(vec))
+        dist = np.arccos(vec) < self.cover_radius
+
+        return np.sum(dist.astype(np.int8))
+
+    def count_mid_next_to(self, label):
+        if self.mid_neighbours is None:
+            return 0
+        vec = self.points[label][3:6]
+        vec = np.matmul(self.mid_neighbours, np.transpose(vec))
+        dist = np.arccos(vec) < self.cover_radius
+
+        return np.sum(dist.astype(np.int8))
+
+    def delect_intersects(self, label):
+        if self.intersection_neighbours is None:
+            return
+        vec = self.points[label][3:6]
+        vec = np.matmul(self.intersection_neighbours, np.transpose(vec))
+        dist = np.arccos(vec) < self.cover_radius
+
+        indices = np.where(dist == True)[0]
+        # print(np.arccos(vec))
+        # print(dist)
+        # print(self.cover_radius)
+        # print(self.intersection_neighbours)
+        self.intersection_neighbours = np.delete(
+            self.intersection_neighbours, indices, axis=0
+        )
+        # print(self.intersection_neighbours)
+
+        pass
+
+    ##############################
     ##############################
     ##############################
     # Updating and Getting Vectors
@@ -100,9 +203,11 @@ class Graph:
         byte_reach = d < 2 * self.cover_radius
         return byte_extension, byte_reach
 
-    def get_distance_vector(self, label) -> np.array:
+    def get_distance_vector(self, label, vector=None) -> np.array:
         cartesian = self.points[:, 3:6]
-        other = cartesian[label]
+        # TODO: sinnvoller trennen durch zwei Funktionen: z.B. get_distance_vector(label) ruft get_distance_vector_by_vec(vec) auf
+        # ermöglicht auch beliebig distanzvektoren zu generieren
+        other = cartesian[label] if vector is None else vector
         vec = np.matmul(cartesian, np.transpose(other))
 
         # verhindert, dass arccos bei d(label, label) aufgrund Rundungsfehler fehlschlagen würde.
@@ -121,7 +226,7 @@ class Graph:
         )
         pass
 
-    def gen_iko_points(self, divisions=10):
+    def gen_iko_points(self, divisions=4):
         iko = ikosaeder()
         iko.subdivide(n=divisions)
         self.points = iko.normalized_points()
@@ -203,7 +308,7 @@ pass
 #########################
 #########################
 
-
+# TODO: adjust graph saving
 def save(g: Graph, filepath: str) -> None:
     np.save(file=filepath + "-points.npy", arr=g.points)
     f = open(file=filepath + "-settings.txt", mode="w", newline="")
