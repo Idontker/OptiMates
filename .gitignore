@@ -1,3 +1,7 @@
+# settings
+.vscode/
+Pipfile*
+
 # graphsaves
 graphsave/
 
