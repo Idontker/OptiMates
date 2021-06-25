@@ -1,3 +1,6 @@
+# sols ignored per default
+sols/
+
 # settings
 .vscode/
 Pipfile*
