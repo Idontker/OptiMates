@@ -1,3 +1,6 @@
+# .png ignored per default
+*.png
+
 # test_ ignored per default
 test_*
 
