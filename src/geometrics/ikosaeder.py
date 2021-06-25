@@ -80,6 +80,7 @@ class ikosaeder:
         pass
 
     def normalized_points(self) -> np.array:
+        # TODO: only cart
         tmp = []
         for v in self.vertices:
             d = np.linalg.norm(v)
