@@ -5,7 +5,7 @@ from geometrics.ikosaeder import ikosaeder
 ### Generating points on graph ###
 
 
-def _create_point(r, theta, phi) -> np.array:
+def _create_point(r, theta, phi) -> np.ndarray:
     # TODO: only cart
     arr = np.array([r, theta, phi, 0, 0, 0])
     arr[3] = r * np.sin(theta) * np.cos(phi)
@@ -14,7 +14,7 @@ def _create_point(r, theta, phi) -> np.array:
     return arr
 
 
-def gen_random_points(N) -> None:
+def gen_random_points(N) -> np.ndarray:
     return np.array([_create_random_point() for _ in range(N)])
 
 
@@ -37,7 +37,7 @@ def gen_archimedic_spiral(
     N=1000,
     lower_bound=0,
     upper_bound=1,
-):
+) -> np.ndarray:
     """theta in [arccos(lower_bound), arccos(upperbound)]"""
 
     X = np.linspace(lower_bound, upper_bound, N)
@@ -62,7 +62,7 @@ def gen_archimedic_spiral(
 
 
 # sieht für mich nach der archimedischen Spirale aus mit speed L = sqrt(N*pi)
-def gen_bauer_spiral(N):
+def gen_bauer_spiral(N) -> np.ndarray:
     L = np.sqrt(N * np.pi)
     k = np.array(range(1, N + 1))
     z = 1 - (2 * k - 1) / N

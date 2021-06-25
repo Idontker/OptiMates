@@ -3,6 +3,7 @@ import setupLogger
 import logging
 import math
 import sys
+import geometrics.point_factory as factory
 
 
 # TODO: make it fast: https://stackoverflow.com/questions/50615262/what-is-the-fastest-way-to-xor-a-lot-of-binary-arrays-in-python
@@ -81,6 +82,19 @@ intersection_weight = 1
 
 # Build Points
 ## random
+points = factory.gen_random_points(N)
+print(points.shape)
+## iko
+points = factory.gen_iko_points(divisions=4)
+print(points.shape)
+
+## alchimeds
+points = factory.gen_archimedic_spiral(speed=500, N=N)
+print(points.shape)
+
+## bauer
+points = factory.gen_bauer_spiral(N)
+print(points.shape)
 
 
 # Seperation of points into stripes
