@@ -83,7 +83,7 @@ def create_stripes(points, epsi, step_prct):
     Z = _new_gen(step_prct, epsi)
     _validate_Z(Z, epsi)
 
-    return _get_strips(arr, Z, epsi)
+    return _get_strips(points, Z, epsi)
 
 
 if __name__ == "__main__":
