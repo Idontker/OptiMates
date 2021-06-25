@@ -1,16 +1,7 @@
-from functools import partial
-from geometrics.ikosaeder import EPSILON
-from greedy.greedysearch import GreedySearch
-from graph.graph import Graph
 from graph.solution import Solution
-import graph.graph as graph
 import setupLogger
 import logging
 import math
-import time
-import numpy as np
-import checker.checker as checker
-import graph.visu_sol as vis
 import sys
 
 
@@ -89,6 +80,8 @@ intersection_weight = 1
 #########################
 
 # Build Points
+## random
+
 
 # Seperation of points into stripes
 
