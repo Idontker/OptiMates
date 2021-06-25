@@ -20,7 +20,10 @@ class GreedySearch:
     def __init__(self, graph: Graph) -> None:
         self.graph = graph
 
-    def findSolution(self, printer: Optional[PrinterFunc] = None) -> Solution:
+    # TODO: contiune curr_sol
+    def findSolution(
+        self, curr_sol=None, printer: Optional[PrinterFunc] = None
+    ) -> Solution:
         # generate a solution
         sol = Solution(self.graph)
         self.prioqueue = PrioQueue()

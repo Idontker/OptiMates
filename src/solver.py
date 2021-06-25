@@ -1,4 +1,5 @@
 from geometrics.ikosaeder import EPSILON
+from graph.solution import Solution
 from greedy.greedysearch import GreedySearch
 from graph.graph import Graph
 import setupLogger
@@ -38,6 +39,47 @@ solution = None
 def get_solution():
     global solution
     return solution
+
+
+def build_graph(
+    points,
+    R,
+    r,
+    exploration_factor,
+    intersection_weight,
+    log_time=None,
+) -> Graph:
+    """points = np.array with (R, phi, theta, x,y,z)
+    points can be a stripe of points (np.array with (6,N) shape)
+    """
+    # TODO: get ride of polar coords -> not necessary
+    starttime = time.time()
+
+    g = Graph(
+        cover_radius=r,
+        exploration_factor=exploration_factor,
+        number_of_points=len(points[0]),
+        intersection_weight=intersection_weight,
+    )
+
+    timediff = time.time() - starttime
+    if log_time is not None:
+        log_time("graph creation", timediff)
+    return g
+
+
+def solve_graph(g, current_sol=None, printer=None, log_time=None) -> Solution:
+    starttime = time.time()
+
+    gs = GreedySearch(graph=g)
+    # TODO: contiune curr_sol
+    sol = gs.findSolution(printer=printer)
+
+    timediff = time.time() - starttime
+    if log_time is not None:
+        log_time("greedy search", timediff)
+
+    return sol
 
 
 def check_and_extend_solution(solutionFilePath, durchmesser):
