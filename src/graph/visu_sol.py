@@ -44,8 +44,8 @@ def surface_spere(
     ax.plot_surface(x, y, z, color=color, alpha=alpha)
 
 
-def add_point(x, y, z, color="g", size=50):
-    ax.scatter(x, y, z, color=color, s=size)
+def add_point(x, y, z, color="g", size=50,alpha=1):
+    ax.scatter(x, y, z, color=color, s=size,alpha=alpha)
 
 
 def kugelkappe(x, y, z, r, resolution=20j, color="g"):
