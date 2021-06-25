@@ -29,14 +29,16 @@ def log_time(tastname, timediff):
 
 
 def printer(index: int, sol: Solution, stepsize: int = 100, stepsize_ram: int = 10):
+    g = sol.graph
+
     if index % stepsize == 0:
         logging.debug(
             "step: {}\tcovered: {}\t of {}".format(
-                index, sol.countCoveredNodes(), len(sol.graph.points)
+                index, sol.countCoveredNodes(), len(g.points)
             )
         )
-        # intersects = sol.graph.intersection_neighbours
-        # mids = sol.graph.mid_neighbours
+        # intersects = g.intersection_neighbours
+        # mids = g.mid_neighbours
         # if intersects is not None:
         #     logging.debug(
         #         "\t inter shape:{}".format(
