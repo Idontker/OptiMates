@@ -1,12 +1,6 @@
-from random import random
-from typing import Tuple
 import numpy as np
-import math
-from numpy.core.numeric import indices
 
 from tqdm import tqdm
-from geometrics.ikosaeder import ikosaeder
-import sys
 import graph.total_size as total
 
 
@@ -34,17 +28,6 @@ class Graph:
         self.mid_neighbours = None
         self.intersection_weight = intersection_weight
         self.mid_neg_weight = -intersection_weight
-
-        # TODO: Schnittpunkte hinzufuegbar machen
-        # es ist nicht möglich Punkte zur Packed matrix hinzufügen, die nicht nur 0 und 1 Einträge haben
-        # die Idee ist es eine zweite und dritte Matrix zu erstellen. Hier kann man die Vektoren so anlegen,
-        # dass man mit dem Zugriff einen Vektor erhält, der angibt wie viele Schnittpunkte und wie viele
-        # Wenn man die Schnittpunkte nicht als mögliche positionen betrachtet sollte es nicht zu viel aufwand sein
-        # Man müsste nur die drei Punkte hinzufügen: 2 Schnittpunkte der Kugeln um zwei Mittelpunkte mit der Sphere
-        # und den Punkt zwischen den Mittelpunkten (M1 + M2) / ||M1+M2||. Die Schnittpunkte können mit *alpha* bewertet werden
-        # die Mittelpunkte haben einen negativen Einfluss auf die Knoten. Die Mittelpunkte verhindern, dass man genau zwischen
-        # die gesamte Schnittfläche doppelt überdeckt wird
-
         pass
 
     def __len__(self) -> int:
@@ -63,45 +46,22 @@ class Graph:
     # TODO: Wahrscheinlich macht es für die Laufzeit keinen Sinn ALLES im voraus zu berechnen
     # es sparrt zwar später Zeit, aber die kann ich mir auch sparen, da ich alles nur einmal brauche
 
-    # def add_intersection_point(self, p1, p2=None):
-    #     # Wiederhole für beide Knoten
-    #     if p2 is not None:
-    #         self.add_intersection_point(p2)
-
-    #     # generiere nachbarvektor
-    #     # label sollte nicht genutzt werden, daher -1, sodass andernfalls ein Fehler fliegt
-    #     neigbours = self.get_distance_vector(label=-1, vector=p1) < self.cover_radius
-    #     neigbours = neigbours.astype(np.int8)
-
-    #     if self.intersection_neighbours is None:
-    #         self.intersection_neighbours = neigbours
-    #     else:
-    #         self.intersection_neighbours = np.vstack(
-    #             (self.intersection_neighbours, neigbours)
-    #         )
-    #     print(self.intersection_neighbours.shape)
-    #     print(self.intersection_neighbours)
-
     def add_intersection_point(self, p1, p2):
         if self.intersection_neighbours is None:
             self.intersection_neighbours = p1
         else:
             self.intersection_neighbours = np.vstack((self.intersection_neighbours, p1))
         self.intersection_neighbours = np.vstack((self.intersection_neighbours, p2))
-        # print("shape intersections: ", self.intersection_neighbours.shape)
-        # print(self.intersection_neighbours)
 
     def add_mid_point(self, m1, m2):
         """m1 und m2 sind die Mittelpunkte, zwischen denen der Mittelpunkt gelegt werden soll"""
         mid = m1 + m2
         mid = mid / np.linalg.norm(mid)
 
-        # print(m1, m2, "mid:", mid)
         if self.mid_neighbours is None:
             self.mid_neighbours = np.array(mid)
         else:
             self.mid_neighbours = np.vstack((self.mid_neighbours, mid))
-        # print("shape mids: ", self.mid_neighbours.shape)
 
     def count_intersections_next_to(self, label):
         if self.intersection_neighbours is None:
@@ -129,14 +89,9 @@ class Graph:
         dist = np.arccos(vec) < self.cover_radius
 
         indices = np.where(dist == True)[0]
-        # print(np.arccos(vec))
-        # print(dist)
-        # print(self.cover_radius)
-        # print(self.intersection_neighbours)
         self.intersection_neighbours = np.delete(
             self.intersection_neighbours, indices, axis=0
         )
-        # print(self.intersection_neighbours)
 
         pass
 
@@ -189,9 +144,6 @@ class Graph:
         byte_vector = d < self.cover_radius
         self.adj_neighbour_dic[label] = np.packbits(byte_vector)
 
-        ###  For non packed vectors ###
-        # self.adj_neighbour_dic[label] = byte_vector.astype(np.int8)
-
     ##############################
     ##############################
     ########## Getters ###########
@@ -221,35 +173,3 @@ class Graph:
 
 
 pass
-
-#########################
-#########################
-# Save and Load Operation
-#########################
-#########################
-
-# TODO: adjust graph saving
-def save(g: Graph, filepath: str) -> None:
-    np.save(file=filepath + "-points.npy", arr=g.points)
-    f = open(file=filepath + "-settings.txt", mode="w", newline="")
-    f.write("number of points:" + str(g.number_of_points) + "\n")
-    f.write("cover radius:" + str(g.cover_radius))
-    f.flush()
-    f.close()
-    pass
-
-
-def load_graph_from(filepath: str) -> Graph:
-    try:
-        f = open(file=filepath + "-settings.txt", mode="r", newline="")
-    except:
-        print("File cannot be opened:", str(filepath) + "-settings.txt")
-        return None
-    line = f.readline()
-    N = int(line.split(":")[1])
-    line = f.readline()
-    r = float(line.split(":")[1])
-
-    g = Graph(cover_radius=r, number_of_points=N)
-    g.points = np.load(file=filepath + "-points.npy")
-    return g

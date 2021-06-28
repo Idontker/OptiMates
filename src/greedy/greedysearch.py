@@ -12,16 +12,11 @@ from geometrics import three_sphere_intersection as intersect
 
 PrinterFunc = Callable[[int, Solution], None]
 
-# BUG: Knoten updatet nur Nachbaren, nicht aber die Knoten die mit seinen Nachbarn benachbart sind
-# BUG:
-
-
 class GreedySearch:
     def __init__(self, graph: Graph, initial_sol: Solution = None) -> None:
         self.graph = graph
         self.sol = initial_sol
 
-    # TODO: contiune curr_sol
     def findSolution(
         self, curr_sol=None, printer: Optional[PrinterFunc] = None
     ) -> Solution:
@@ -71,24 +66,10 @@ class GreedySearch:
                 s = intersect.find_aequidist_points_on_sphere(
                     p1, p2, self.graph.cover_radius, deg=False
                 )
-                # dist = np.arccos(np.matmul(p1, np.transpose(p2)))
 
                 # teste, ob auch wirklich Schnittpunkte vorhanden sind
                 if s is not None:
                     # einfuegen dieser in den Algo
-                    # print("\nl1:{}  l2:{}".format(curr_label, sol_label))
-                    # print("p1:{}    p2:{}   d:{}".format(p1, p2, dist))
-                    # print("s1:{}    s2:{}".format(s[0], s[1]))
-                    # print(
-                    #     (
-                    #         "d(p1,s1):{}\td(p1,s2):{}\n" + "d(p2,s1):{}\td(p2,s1):{}"
-                    #     ).format(
-                    #         np.arccos(np.matmul(p1, np.transpose(s[0]))),
-                    #         np.arccos(np.matmul(p1, np.transpose(s[1]))),
-                    #         np.arccos(np.matmul(p2, np.transpose(s[0]))),
-                    #         np.arccos(np.matmul(p2, np.transpose(s[1]))),
-                    #     )
-                    # )
                     self.graph.add_intersection_point(s[0], s[1])
                     self.graph.add_mid_point(p1, p2)
                 pass
