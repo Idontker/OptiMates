@@ -83,8 +83,8 @@ r = math.radians(durchmeser / 2)
 logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
 
-N = 20_000
-seperation_step = 0.4
+N = 100_000
+seperation_step = 0.5
 exploration_factor = 2
 intersection_weight = 1
 solutionFilePath = ".\\sols\\solution_" + str(N) + "_" + str(durchmeser) + "_01.csv"
@@ -139,6 +139,10 @@ total_solution = Total_Solution(N, labels)
 i = 0
 for stripe in stripes:
     n = len(stripe[0])
+    # if n >= 36_000:
+    #     raise RuntimeError(
+    #         "Sicherheitsabbruch, da wahrscheinlich zu viel RAM benoetigt wird"
+    #     )
     # build subgraph
     starttime = time.time()
     graph = Graph(
@@ -154,7 +158,8 @@ for stripe in stripes:
     if n <= 15_000:
         steps = 1
     else:
-        steps = 1 + int(n / 10_000)
+        old_steps = 1 + int(n / 10_000)
+        steps = 1 + int(n / 10_000) * int(n / 10_000)
     graph.update_all_neighbours(steps=steps)
 
     # build sol for current subgraph on stripe
