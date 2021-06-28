@@ -12,8 +12,8 @@ class Solution:
             self.genome = sol.genome
             self.covering_vec = sol.covering_vec
         else:
-            self.genome = np.zeros(len(self.graph)).astype(int)
-            self.covering_vec = np.zeros(len(self.graph)).astype(int)
+            self.genome = np.zeros(len(self.graph)).astype(np.int8)
+            self.covering_vec = np.zeros(len(self.graph)).astype(np.int8)
 
     def __str__(self) -> str:
         return str(np.where(self.genome != 0)[0])
@@ -27,7 +27,8 @@ class Solution:
     def addNodeByLabel(self, label: int) -> int:
         self.genome[label] = 1
         # actuell nicht mehr gebracuht, da der Graph alle Nachbar Vectoren selbst verwaltet
-        # es sparrt auch kaum speicherplatz, da deutlich mehr Knoten betrachtet werden, wie 
+        # es sparrt auch kaum speicherplatz, da deutlich mehr Knoten betrachtet werden, wie
+
         self._updateCoverings(self.graph.get_neighbour_vector(label))
         self.graph.delect_intersects(label)
 
@@ -36,7 +37,6 @@ class Solution:
 
     def initRandomGenome(self) -> None:
         self.genome = np.array(choices((0, 1), k=len(self.graph)))
-        # TODO
 
     def _updateCoverings(self, vec: np.array) -> None:
         self.covering_vec = self.covering_vec + vec
@@ -50,6 +50,7 @@ class Solution:
         return self.countCoveredNodes() == len(self.graph)
 
     def save(self, filepath: str) -> None:
+        # TODO: anpassen an cart only
         writer_nodes = csv.writer(
             open(file=filepath, mode="w", newline=""), delimiter=";"
         )

@@ -11,6 +11,7 @@ def _create_point(r, theta, phi) -> np.ndarray:
     arr[3] = r * np.sin(theta) * np.cos(phi)
     arr[4] = r * np.sin(theta) * np.sin(phi)
     arr[5] = r * np.cos(theta)
+
     return arr
 
 
@@ -23,13 +24,17 @@ def _create_random_point() -> np.array:
     x = random() * 2 - 1
     theta = np.arccos(x)
 
-    return _create_point(1, theta, phi)
+    # TODO: welches will ich ? seperator braucht es mit transpose, aber graph braucht es getauscht?
+    # return _create_point(1, theta, phi)
+    return np.transpose(_create_point(1, theta, phi))
 
 
 def gen_iko_points(divisions=4):
     iko = ikosaeder()
     iko.subdivide(n=divisions)
-    return iko.normalized_points()
+
+    # TODO: welches will ich ? seperator braucht es mit transpose, aber graph braucht es getauscht?
+    return np.transpose(iko.normalized_points())
 
 
 def gen_archimedic_spiral(
@@ -58,7 +63,8 @@ def gen_archimedic_spiral(
 
     # TODO: will ich glaube ich nicht in diesem Fall haben
     # np.transpose wechselt die Dimmensionen, sodass bei Iterationen über die Zeilen(einzelne Punkte) und nicht die Spalten(Theta-vektor, Phi-vektor, ...) iteriert wird
-    return np.transpose(arr)
+    # return np.transpose(arr)
+    return arr
 
 
 # sieht für mich nach der archimedischen Spirale aus mit speed L = sqrt(N*pi)
@@ -85,4 +91,5 @@ def gen_bauer_spiral(N) -> np.ndarray:
 
     # TODO: will ich glaube ich nicht in diesem Fall haben
     # np.transpose wechselt die Dimmensionen, sodass bei Iterationen über die Zeilen(einzelne Punkte) und nicht die Spalten(Theta-vektor, Phi-vektor, ...) iteriert wird
-    return np.transpose(arr)
+    # return np.transpose(arr)
+    return arr

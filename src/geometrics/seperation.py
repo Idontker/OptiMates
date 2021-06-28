@@ -1,5 +1,4 @@
-from numpy.core.function_base import linspace
-import src.graph.visu_sol as vis
+import graph.visu_sol as vis
 import numpy as np
 import logging
 
@@ -15,12 +14,12 @@ def _gen_bauer_spiral(N):
     return x, y, z
 
 
-def _select_strip(arr, upper_z, lower_z, epsi=0):
+def _select_strip(arr, upper_z, lower_z, epsi=0, z_index=2):
     """ je upper_z, lower_z und epsi in rad"""
 
-    smaller_than_upper = arr[2] <= np.cos(upper_z)
+    smaller_than_upper = arr[z_index] <= np.cos(upper_z)
     greater_than_lower = (
-        arr[2] >= np.cos(lower_z + epsi) if lower_z + epsi < np.pi else -1
+        arr[z_index] >= np.cos(lower_z + epsi) if lower_z + epsi < np.pi else -1
     )
 
     within_bounds = np.logical_and(smaller_than_upper, greater_than_lower)
@@ -28,13 +27,13 @@ def _select_strip(arr, upper_z, lower_z, epsi=0):
     return arr[:, within_bounds]
 
 
-def _get_strips(arr, Z, epsi):
+def _get_stripes(arr, Z, epsi, z_index=2):
     s = []
     M = len(Z)
     lens = []
 
     for i in range(M - 1):
-        tmp = _select_strip(arr, Z[i], Z[i + 1], epsi)
+        tmp = _select_strip(arr, Z[i], Z[i + 1], epsi, z_index=z_index)
         lens.append(len(tmp[0]))
         s.append(tmp)
 
@@ -59,14 +58,13 @@ def _new_gen(step_prct, epsi=0):
 
 
 def _validate_Z(Z, epsi=0):
-
     faces = []
     for i in range(len(Z) - 1):
         low = Z[i]
         max = Z[i + 1] + epsi if Z[i + 1] + epsi < np.pi else np.pi
         face = np.cos(low) - np.cos(max)
         faces.append(face)
-    logging.info("faces[0]:", faces[0], "avg(faces)", np.average(faces))
+    logging.info("faces[0]: {}\tavg(faces): {}:".format(faces[0], np.average(faces)))
 
     for i in range(len(Z) - 1):
         d = Z[i + 1] - Z[i] - epsi
@@ -79,11 +77,23 @@ def _validate_Z(Z, epsi=0):
     pass
 
 
-def create_stripes(points, epsi, step_prct):
+def create_stripes(points, epsi, step_prct, z_index=2):
+    # append labels to points
+    labels = np.array(range(len(points[0])))
+    combined = np.vstack((points, labels))
+
     Z = _new_gen(step_prct, epsi)
     _validate_Z(Z, epsi)
 
-    return _get_strips(points, Z, epsi)
+    # points and labels combined ==> extract them
+    combined_stripes = _get_stripes(combined, Z, epsi, z_index)
+    labels = []
+    stripes = []
+    for stripe in combined_stripes:
+        labels.append(stripe[-1].astype(int))
+        stripes.append(stripe[0:-1])
+
+    return stripes, labels
 
 
 if __name__ == "__main__":
@@ -103,7 +113,7 @@ if __name__ == "__main__":
     x, y, z = _gen_bauer_spiral(N)
     arr = np.array([x, y, z])
 
-    strips = _get_strips(arr, Z, epsi)
+    strips = _get_stripes(arr, Z, epsi)
 
     ##########
     ## PLOT ##

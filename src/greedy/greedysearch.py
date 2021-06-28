@@ -17,15 +17,23 @@ PrinterFunc = Callable[[int, Solution], None]
 
 
 class GreedySearch:
-    def __init__(self, graph: Graph) -> None:
+    def __init__(self, graph: Graph, initial_sol: Solution = None) -> None:
         self.graph = graph
+        self.sol = initial_sol
 
     # TODO: contiune curr_sol
     def findSolution(
         self, curr_sol=None, printer: Optional[PrinterFunc] = None
     ) -> Solution:
         # generate a solution
-        sol = Solution(self.graph)
+        sol = None
+        if self.sol is not None:
+            sol = self.sol
+            # TODO: build the prioqueue
+        else:
+            sol = Solution(self.graph)
+
+        # setup datastructures
         self.prioqueue = PrioQueue()
         self.label_to_entry = {}
 

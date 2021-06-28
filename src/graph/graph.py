@@ -17,9 +17,10 @@ class Graph:
         number_of_points: int,
         exploration_factor=1.5,
         intersection_weight=1000,
+        points=None,
     ) -> None:
         # graphs attributes
-        self.points = None
+        self.points = points
         self.adj_neighbour = None
 
         # settings for the graph
@@ -216,7 +217,7 @@ class Graph:
         return np.arccos(vec)
 
     def get_neighbour_vector(self, label) -> np.array:
-        return np.unpackbits(self.adj_neighbour[label])
+        return np.unpackbits(self.adj_neighbour[label])[0:self.number_of_points]
 
 
 pass
