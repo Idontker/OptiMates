@@ -78,17 +78,21 @@ def printer(index: int, sol: Solution, stepsize: int = 100, stepsize_ram: int = 
 setupLogger.setup("Run main.py")
 
 R = 1
-durchmeser = 2 * 27.7  # deg
+durchmeser = 2 * 13  # deg
 r = math.radians(durchmeser / 2)
 logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
 
+# N = 50_000
 N = 50_000
-# N = 100
-seperation_step = 0.5
-exploration_factor = 2
-intersection_weight = 1
+# seperation_step = 1.1
+seperation_step = 0.6
+exploration_factor = 1.8
+intersection_weight = 0.5
 solutionFilePath = ".\\sols\\solution_" + str(N) + "_" + str(durchmeser) + "_01.csv"
+solution_log_FilePath = (
+    ".\\logs\\solution_log" + str(N) + "_" + str(durchmeser) + "_01.csv"
+)
 
 
 #########################
@@ -182,6 +186,7 @@ for stripe in stripes:
 
 
 total_solution.save(solutionFilePath, points=np.transpose(points))
+total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
 
 
 #########################
@@ -192,7 +197,15 @@ total_solution.save(solutionFilePath, points=np.transpose(points))
 
 # Lies die Lösung ein
 solution = checker.readSolution(solutionFilePath)
-logging.info("Solution for {}:".format(durchmeser))
+logging.info(
+    "Solution for r={}°    N={}    sep_step={} explor={}   inter_weight={}:".format(
+        durchmeser / 2,
+        N,
+        seperation_step,
+        exploration_factor,
+        intersection_weight
+    )
+)
 # for p in solution:
 #     logging.info(p)
 

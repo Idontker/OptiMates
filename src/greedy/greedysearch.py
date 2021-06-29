@@ -12,6 +12,7 @@ from geometrics import three_sphere_intersection as intersect
 
 PrinterFunc = Callable[[int, Solution], None]
 
+
 class GreedySearch:
     def __init__(self, graph: Graph, initial_sol: Solution = None) -> None:
         self.graph = graph
@@ -27,6 +28,7 @@ class GreedySearch:
             # TODO: build the prioqueue
         else:
             sol = Solution(self.graph)
+            self.sol = sol
 
         # setup datastructures
         self.prioqueue = PrioQueue()
@@ -40,6 +42,7 @@ class GreedySearch:
 
             # get best by heuristcs / fittness
             curr_entry = self.prioqueue.pop_task()
+            self.__log_best_fitt(iteration, sol.countCoveredNodes(), curr_entry)
             logging.debug(
                 "\titer:"
                 + str(iteration)
@@ -106,3 +109,26 @@ class GreedySearch:
 
         self.prioqueue.add_task(entry, -entry.getFittness())
         self.label_to_entry[label] = entry
+
+    def __log_best_fitt(self, iteration, covered, entry: Entry):
+        prcent_covered = covered / self.graph.number_of_points
+
+        label = entry.label
+        fittness = entry.getFittness()
+        new_coverings = entry.covering_uncovered_nodes
+        covered_intersection = entry.covered_intersections
+        covered_mid = entry.covered_mids
+
+        # create log tuple
+        tuple = (
+            iteration,
+            prcent_covered,
+            covered,
+            label,
+            fittness,
+            new_coverings,
+            covered_intersection,
+            covered_mid,
+        )
+        self.sol.place_log(label, tuple)
+        pass

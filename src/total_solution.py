@@ -11,6 +11,8 @@ class Total_Solution:
         self.labels = labels
         self.delete_parts = delete_parts
 
+        self.logs = []
+
         self.used_labels = np.array([]).astype(int)
 
         # list von tupeln (a,b).
@@ -49,6 +51,8 @@ class Total_Solution:
             end, _ = self.delete_parts[iteration]
 
         sol_labels = solution.getUsedLabels()
+        self.__log_all_labels(iteration, start, end, sol_labels, solution.label_logs)
+
         sol_labels = sol_labels + start
         sol_labels = sol_labels[sol_labels <= end]
         self.used_labels = np.append(self.used_labels, sol_labels)
@@ -59,6 +63,76 @@ class Total_Solution:
         pass
 
     pass
+
+    def __log_all_labels(
+        self, iteration: int, start: int, end: int, sol_labels: int, label_logs
+    ):
+        for label in label_logs.keys():
+            t = label_logs[label]
+
+            keep_label = label + start <= end
+
+            self.logs.append(
+                [
+                    iteration,
+                    t[0],  # specific iteration
+                    t[1],  # % covered
+                    t[2],  # covered
+                    t[3] + start,  # label
+                    t[4],  # fittness
+                    t[5],  # new coverings
+                    t[6],  # covered intersection
+                    t[7],  # covered mid
+                    keep_label,
+                ]
+            )
+
+        pass
+
+    def save_logs(self, filepath: str, points):
+        # TODO: anpassen an cart only
+        writer_nodes = csv.writer(
+            open(file=filepath, mode="w", newline=""), delimiter=";"
+        )
+        # header
+        writer_nodes.writerow(
+            [
+                "slice",
+                "slice_i",
+                "'%' covered",
+                "# covered",
+                "label",
+                "fittness",
+                "new coverings",
+                "covered intersection",
+                "mid",
+                "keep",
+                "x",
+                "y",
+                "z",
+            ]
+        )
+        for t in self.logs:
+            label = t[4]
+            point = points[label]
+            writer_nodes.writerow(
+                [
+                    t[0],
+                    t[1],
+                    t[2],
+                    t[3],
+                    t[4],
+                    t[5],
+                    t[6],
+                    t[7],
+                    t[8],
+                    t[9],
+                    point[3],
+                    point[4],
+                    point[5],
+                ]
+            )
+            pass
 
     def save(self, filepath: str, points) -> None:
         # TODO: anpassen an cart only

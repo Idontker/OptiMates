@@ -5,15 +5,12 @@ import csv
 
 
 class Solution:
-    def __init__(self, graph: Graph, sol=None) -> None:
+    def __init__(self, graph: Graph) -> None:
         self.graph = graph
 
-        if sol != None:
-            self.genome = sol.genome
-            self.covering_vec = sol.covering_vec
-        else:
-            self.genome = np.zeros(len(self.graph)).astype(np.int8)
-            self.covering_vec = np.zeros(len(self.graph)).astype(np.int8)
+        self.genome = np.zeros(len(self.graph)).astype(np.int8)
+        self.covering_vec = np.zeros(len(self.graph)).astype(np.int8)
+        self.label_logs = {}
 
     def __str__(self) -> str:
         return str(np.where(self.genome != 0)[0])
@@ -48,6 +45,9 @@ class Solution:
 
     def isFullCover(self) -> bool:
         return self.countCoveredNodes() == len(self.graph)
+
+    def place_log(self, label, log_tuple):
+        self.label_logs[label] = log_tuple
 
     def save(self, filepath: str) -> None:
         # TODO: anpassen an cart only

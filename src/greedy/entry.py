@@ -25,6 +25,7 @@ class Entry:
 
         return (
             self.covering_uncovered_nodes
+            # + self.graph.intersection_weight * np.sqrt(self.covered_intersections)
             + self.graph.intersection_weight * self.covered_intersections
             + self.graph.mid_neg_weight * self.covered_mids
         )
