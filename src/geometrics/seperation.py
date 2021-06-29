@@ -65,19 +65,11 @@ def _validate_Z(Z, epsi=0):
         face = np.cos(low) - np.cos(max)
         faces.append(face)
     logging.info("faces[0]: {}\tavg(faces): {}:".format(faces[0], np.average(faces)))
-
-    for i in range(len(Z) - 1):
-        d = Z[i + 1] - Z[i] - epsi
-        if d < -1e-11:
-            logging.error(
-                "i:{}\tZ[i+1]-Z[i] - epsi >0 ? {}\t Z[i+1]-Z[i] - epsi = {}".format(
-                    i, d > -1e-11, d
-                )
-            )
     pass
 
 
-def create_stripes(points, epsi, step_prct, z_index=2):
+def create_stripes(points, r, step_prct, z_index=2):
+    epsi = 2 * r
     # append labels to points
     labels = np.array(range(len(points[0])))
     combined = np.vstack((points, labels))
@@ -85,15 +77,32 @@ def create_stripes(points, epsi, step_prct, z_index=2):
     Z = _new_gen(step_prct, epsi)
     _validate_Z(Z, epsi)
 
+    ### Normale Zerlegung
     # points and labels combined ==> extract them
     combined_stripes = _get_stripes(combined, Z, epsi, z_index)
-    labels = []
+    ret_labels = []
     stripes = []
     for stripe in combined_stripes:
-        labels.append(stripe[-1].astype(int))
+        ret_labels.append(stripe[-1].astype(int))
         stripes.append(stripe[0:-1])
 
-    return stripes, labels
+    ### Delete Zerlegung: Welche Überschnittenen Lösungen sollen in der nächsten Interation
+    # erneut berechnet werden?
+    # TODO: code doppelung ?
+    delete_labels = []
+    for i in range(1, len(Z) - 1):
+        # Aussname: letzte Stripe soll vollständig übernommen werden
+        up_z = Z[i] + epsi / 2
+        low_z = Z[i] + epsi
+        tmp = labels[
+            (points[z_index] <= np.cos(up_z)) & (points[z_index] >= np.cos(low_z))
+        ]
+        # print(tmp)
+        delete_labels.append((tmp[0], tmp[-1]))
+        pass
+    # print(delete_labels)
+
+    return stripes, ret_labels, delete_labels
 
 
 if __name__ == "__main__":

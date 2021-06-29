@@ -78,12 +78,13 @@ def printer(index: int, sol: Solution, stepsize: int = 100, stepsize_ram: int = 
 setupLogger.setup("Run main.py")
 
 R = 1
-durchmeser = 2 * 22.7  # deg
+durchmeser = 2 * 27.7  # deg
 r = math.radians(durchmeser / 2)
 logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
 
-N = 100_000
+N = 50_000
+# N = 100
 seperation_step = 0.5
 exploration_factor = 2
 intersection_weight = 1
@@ -124,25 +125,22 @@ log_time("point factory", time.time() - starttime)
 # Seperation of points into stripes / chunks
 
 starttime = time.time()
-stripes, labels = seperator.create_stripes(
-    points=points, epsi=r, step_prct=seperation_step, z_index=5
+stripes, labels, delete_parts = seperator.create_stripes(
+    points=points, r=r, step_prct=seperation_step, z_index=5
 )
 log_time("stripes generation", time.time() - starttime)
 
 
 # solve individuals
-total_solution = Total_Solution(N, labels)
-# current_sol = Solution(N, labels)
+total_solution = Total_Solution(N, labels, delete_parts)
 
-# total_solution.used_labels = np.array(range(100, 2000, 50))
+print(total_solution.ranges)
+print(total_solution.delete_parts)
 
 i = 0
 for stripe in stripes:
     n = len(stripe[0])
-    # if n >= 36_000:
-    #     raise RuntimeError(
-    #         "Sicherheitsabbruch, da wahrscheinlich zu viel RAM benoetigt wird"
-    #     )
+
     # build subgraph
     starttime = time.time()
     graph = Graph(
@@ -155,7 +153,7 @@ for stripe in stripes:
         ),  # graph iteriert über Zeilen und nicht Spalten => transposes
     )
 
-    if n <= 15_000:
+    if n <= 10_000:
         steps = 1
     else:
         old_steps = 1 + int(n / 10_000)
