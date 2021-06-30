@@ -88,8 +88,8 @@ logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 # step_prct = 0.065
 # seperation_step = 0.1
 
-N = 20_000
-seperation_step = 0.7
+N = 100_000
+seperation_step = 0.5
 
 
 exploration_factor = 1.8
@@ -188,6 +188,8 @@ for stripe in stripes:
 
     # incremennt iteration count
     i = i + 1
+    
+    total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
     pass
 
 
