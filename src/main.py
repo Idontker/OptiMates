@@ -85,7 +85,7 @@ logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
 
 # N = 50_000
-N = 50_000
+N = 20_000
 # seperation_step = 1.1
 seperation_step = 0.6
 exploration_factor = 1.8
@@ -188,7 +188,7 @@ for stripe in stripes:
 
 
 total_solution.save(solutionFilePath + "tmp", points=np.transpose(points))
-total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
+total_solution.save_logs(solution_log_FilePath + "tmp", points=np.transpose(points))
 
 
 #########################
