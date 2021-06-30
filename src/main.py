@@ -187,8 +187,8 @@ for stripe in stripes:
     pass
 
 
-total_solution.save(solutionFilePath + "tmp", points=np.transpose(points))
-total_solution.save_logs(solution_log_FilePath + "tmp", points=np.transpose(points))
+total_solution.save(solutionFilePath + "_tmp", points=np.transpose(points))
+total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
 
 
 #########################
@@ -198,7 +198,7 @@ total_solution.save_logs(solution_log_FilePath + "tmp", points=np.transpose(poin
 #########################
 
 # Lies die Lösung ein
-solution = checker.readSolution(solutionFilePath)
+solution = checker.readSolution(solutionFilePath+ "_tmp.csv")
 logging.info(
     "Solution for r={}°    N={}    sep_step={} explor={}   inter_weight={}:".format(
         durchmeser / 2, N, seperation_step, exploration_factor, intersection_weight
