@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 # making dataframe
 # og_df1 = pd.read_csv("..\\..\\logs\\solution_log20000_26_01_9part.csv", sep=";")
 # og_df2 = pd.read_csv("..\\..\\logs\\solution_log20000_26_01.csv", sep=";")
-og_df = pd.read_csv("..\\..\\logs\\solution_log20000_26_01.csv", sep=";")
+# og_df = pd.read_csv("..\\..\\logs\\solution_log20000_26_01_9part.csv", sep=";")
+# og_df = pd.read_csv("..\\..\\logs\\solution_log20000_26_01.csv", sep=";")
+og_df = pd.read_csv("..\\..\\logs\\solution_log20000_26_01_3part.csv", sep=";")
 
 
 # fig = plt.figure()
@@ -18,9 +20,9 @@ og_df = pd.read_csv("..\\..\\logs\\solution_log20000_26_01.csv", sep=";")
 
 # exit()
 
+tmp = og_df[og_df["keep"] == True]
 
-
-print(og_df.describe())
+print(tmp[["new coverings", "covered intersection", "mid"]].describe())
 color = {
     0: "red",
     1: "blue",
@@ -52,9 +54,6 @@ def plot_slice(slice, i, rows, cols):
     df.plot(x="slice_i", y="z", ax=ax, color=df["color"])
 
     pass
-
-
-print(og_df.describe())
 
 
 fig = plt.figure()
