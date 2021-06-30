@@ -49,12 +49,3 @@ class Solution:
     def place_log(self, label, log_tuple):
         self.label_logs[label] = log_tuple
 
-    def save(self, filepath: str) -> None:
-        # TODO: anpassen an cart only
-        writer_nodes = csv.writer(
-            open(file=filepath, mode="w", newline=""), delimiter=";"
-        )
-        for label in np.where(self.genome != 0)[0]:
-            point = self.graph.points[label]
-            writer_nodes.writerow([point[3], point[4], point[5]])
-            pass

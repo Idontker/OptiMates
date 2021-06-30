@@ -137,7 +137,7 @@ class Total_Solution:
     def save(self, filepath: str, points) -> None:
         # TODO: anpassen an cart only
         writer_nodes = csv.writer(
-            open(file=filepath, mode="w", newline=""), delimiter=";"
+            open(file=filepath + ".csv", mode="w", newline=""), delimiter=";"
         )
         for label in self.used_labels:
             point = points[label]

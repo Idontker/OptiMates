@@ -2,6 +2,7 @@ import sys
 import gurobipy
 import math
 import numpy as np
+import time
 
 # Lies die Lösungsdatei ein und gib eine Liste der Mittelpunkte zurück
 # solutionFilePath = Pfad zur Lösungsdatei (string)
@@ -153,34 +154,26 @@ def collect_missing(solution, alpha, n=3, printer=None):
             f"Angle{j}",
         )
 
+    added = []
+
+    # begining of do while
+    starttime = time.time()
     model.optimize()
-    adding = 0
+
     while model.status == 2:
+
+        arr = np.array([0.0, 0.0, 0.0])
+        for i in range(n):
+            arr[i] = y[i].X
+        added.append(arr)
+
         if printer is not None:
+            printer(len(added), time.time() - starttime)
             pass
 
+        # do while
+        starttime = time.time()
+        model.optimize()
+        pass
 
-
-# if printer is not None:
-# 	printer
-# Schreibe zum Debuggen eine LP-Datei heraus
-# model.write("Lösung.lp")
-
-# Löse das Modell und entscheide an Hand des Zulässigkeitsstatus,
-# ob die Überdeckung vollständig
-# model.optimize()
-# if model.status == 2:
-#     if printing:
-#         print(
-#             "Die Überdeckung ist nicht vollständig.\nDer folgende Punkt ist nicht überdeckt:"
-#         )
-#     arr = np.array([0.0, 0.0, 0.0])
-
-#     for i in range(n):
-#         if printing:
-#             print(f"y{i} = ", y[i].X)
-#         arr[i] = y[i].X
-#     return arr
-
-# else:
-#     print("Die Überdeckung ist vollständig.")
+    return added

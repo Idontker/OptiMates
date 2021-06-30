@@ -11,6 +11,7 @@ from total_solution import Total_Solution
 import numpy as np
 import time
 import checker.checker as checker
+import csv
 
 
 # TODO: make it fast: https://stackoverflow.com/questions/50615262/what-is-the-fastest-way-to-xor-a-lot-of-binary-arrays-in-python
@@ -89,7 +90,8 @@ N = 50_000
 seperation_step = 0.6
 exploration_factor = 1.8
 intersection_weight = 0.5
-solutionFilePath = ".\\sols\\solution_" + str(N) + "_" + str(durchmeser) + "_01.csv"
+
+solutionFilePath = ".\\sols\\solution_" + str(N) + "_" + str(durchmeser) + "_01"
 solution_log_FilePath = (
     ".\\logs\\solution_log" + str(N) + "_" + str(durchmeser) + "_01.csv"
 )
@@ -185,7 +187,7 @@ for stripe in stripes:
     pass
 
 
-total_solution.save(solutionFilePath, points=np.transpose(points))
+total_solution.save(solutionFilePath + "tmp", points=np.transpose(points))
 total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
 
 
@@ -199,30 +201,31 @@ total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
 solution = checker.readSolution(solutionFilePath)
 logging.info(
     "Solution for r={}°    N={}    sep_step={} explor={}   inter_weight={}:".format(
-        durchmeser / 2,
-        N,
-        seperation_step,
-        exploration_factor,
-        intersection_weight
+        durchmeser / 2, N, seperation_step, exploration_factor, intersection_weight
     )
 )
-# for p in solution:
-#     logging.info(p)
 
-# int um die loecher zu zaehlen
-added = 0
+# custom printer for checker
+def printer(i, timediff):
+    log_time("collecting missing - so far: {}".format(i), timediff=timediff)
 
-# looking for missing points with "do while"
-while True:
-    arr = checker.checkSolution(solution, durchmeser, printing=False)
-    if arr is None:
-        break
-    else:
-        added = added + 1
-        solution.append(arr)
+
+added = checker.collect_missing()
+for a in added:
+    solution.append(a)
 
 logging.info("=========DONE=========")
-logging.info("Due to holes additionally added points {}".format(added))
+logging.info("Due to holes additionally added points {}".format(len(added)))
 logging.info("Number of needed shperical caps: {}".format(len(solution)))
 # Überprüfe die Lösung
 checker.checkSolution(solution, durchmeser)
+
+# save solution and added
+
+
+writer_solution = csv.writer(
+    open(file=solutionFilePath + ".csv", mode="w", newline=""), delimiter=";"
+)
+for p in solution:
+    writer_solution.writerow([p[0], p[1], p[2]])
+    pass
