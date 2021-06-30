@@ -1,5 +1,7 @@
 from graph.graph import Graph
 import numpy as np
+from graph.solution import Solution
+import logging
 
 
 class Entry:
@@ -18,6 +20,20 @@ class Entry:
             self.covered_intersections,
             self.covered_mids,
         )
+
+    def savetycheck_coverings(self, current_solution: Solution):
+        covered_nodes = current_solution.covering_vec
+        amount_covered = current_solution.countCoveredNodes()
+        amount_covered_with_this = self.__extract_possible_coverings(covered_nodes)
+
+        curr_potential = amount_covered_with_this - amount_covered
+
+        if curr_potential != self.covering_uncovered_nodes:
+            logging.error(
+                "label{} has {} new coverings but should have {} new coverings".format(
+                    self.label, self.covering_uncovered_nodes, curr_potential
+                )
+            )
 
     def getFittness(self) -> int:
         if self.covering_uncovered_nodes == 0:

@@ -79,15 +79,19 @@ def printer(index: int, sol: Solution, stepsize: int = 100, stepsize_ram: int = 
 setupLogger.setup("Run main.py")
 
 R = 1
-durchmeser = 2 * 1.75  # deg
+durchmeser = 2 * 13  # deg
 r = math.radians(durchmeser / 2)
 logging.info("durchmeser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
 
-N = 500_000
+# N = 500_000
 # step_prct = 0.065
+# seperation_step = 0.1
 
-seperation_step = 0.1
+N = 20_000
+seperation_step = 0.7
+
+
 exploration_factor = 1.8
 intersection_weight = 0.5
 

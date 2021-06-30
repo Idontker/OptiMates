@@ -51,6 +51,7 @@ class GreedySearch:
                 + "\t"
                 + str(curr_entry)
             )
+            curr_entry.savetycheck_coverings(sol)
 
             curr_label = curr_entry.label
             sol.addNodeByLabel(curr_label)
@@ -77,7 +78,7 @@ class GreedySearch:
                     self.graph.add_mid_point(p1, p2)
                 pass
 
-            reached_vec, extension_vec = self.graph.get_extension_and_reach(curr_label)
+            extension_vec, reached_vec = self.graph.get_extension_and_reach(curr_label)
             # where gibt nen array von arrays, daher braucht es das [0]
             reached_labels = np.where(reached_vec != 0)[0]
             amount_covered = sol.countCoveredNodes()
