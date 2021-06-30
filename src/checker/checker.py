@@ -162,17 +162,23 @@ def collect_missing(solution, alpha, n=3, printer=None):
 
     while model.status == 2:
 
-        arr = np.array([0.0, 0.0, 0.0])
+        x = np.array([0.0, 0.0, 0.0])
         for i in range(n):
-            arr[i] = y[i].X
-        added.append(arr)
+            x[i] = y[i].X
+        added.append(x)
+        model.addConstr(
+            gurobipy.quicksum(x[i] * y[i] for i in range(n))
+            <= math.cos((0.5 * alpha) / 180 * math.pi),
+            f"Angle{j}",
+        )
 
         if printer is not None:
-            printer(len(added), time.time() - starttime)
+            printed = printer(len(added), len(solution) + len(added), time.time() - starttime)
+            if printed:
+                starttime = time.time()
             pass
 
         # do while
-        starttime = time.time()
         model.optimize()
         pass
 
