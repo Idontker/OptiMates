@@ -16,7 +16,7 @@ def _create_point(r, theta, phi) -> np.ndarray:
 
 
 def gen_random_points(N) -> np.ndarray:
-    return np.array([_create_random_point() for _ in range(N)])
+    return np.transpose(np.array([_create_random_point() for _ in range(N)]))
 
 
 def _create_random_point() -> np.array:
@@ -26,7 +26,7 @@ def _create_random_point() -> np.array:
 
     # TODO: welches will ich ? seperator braucht es mit transpose, aber graph braucht es getauscht?
     # return _create_point(1, theta, phi)
-    return np.transpose(_create_point(1, theta, phi))
+    return _create_point(1, theta, phi)
 
 
 def gen_iko_points(divisions=4):

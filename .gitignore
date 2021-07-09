@@ -7,6 +7,9 @@ test_*
 # sols ignored per default
 sols/
 
+# presentation
+src/presentation/*
+
 # settings
 .vscode/
 Pipfile*
