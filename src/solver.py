@@ -14,13 +14,22 @@ import numpy as np
 # TODO: make it fast: https://stackoverflow.com/questions/50615262/what-is-the-fastest-way-to-xor-a-lot-of-binary-arrays-in-python
 
 
+
 def log_time(tastname, timediff):
+    total_diff = time.time() - time_ground_zero
     logging.info(
         'time for "{}": {}::{}::{}    [min:sec:ms]'.format(
             tastname,
             math.trunc(timediff / 60),
             math.trunc(timediff % 60),
             math.trunc((timediff - math.trunc(timediff)) * 1000),
+        )
+    )
+    logging.info(
+        "total time: {}::{}::{}    [min:sec:ms]".format(
+            math.trunc(total_diff / 60),
+            math.trunc(total_diff % 60),
+            math.trunc((total_diff - math.trunc(total_diff)) * 1000),
         )
     )
 
@@ -36,82 +45,6 @@ setupLogger.setup("solver loaded - logging setup startet")
 solution = None
 
 
-def get_solution():
-    global solution
-    return solution
-
-
-def build_graph(
-    points,
-    R,
-    r,
-    exploration_factor,
-    intersection_weight,
-    log_time=None,
-) -> Graph:
-    """points = np.array with (R, phi, theta, x,y,z)
-    points can be a stripe of points (np.array with (6,N) shape)
-    """
-    # TODO: get ride of polar coords -> not necessary
-    starttime = time.time()
-
-    g = Graph(
-        cover_radius=r,
-        exploration_factor=exploration_factor,
-        number_of_points=len(points[0]),
-        intersection_weight=intersection_weight,
-    )
-
-    timediff = time.time() - starttime
-    if log_time is not None:
-        log_time("graph creation", timediff)
-    return g
-
-
-def solve_graph(g, current_sol=None, printer=None, log_time=None) -> Solution:
-    starttime = time.time()
-
-    gs = GreedySearch(graph=g)
-    # TODO: contiune curr_sol
-    sol = gs.findSolution(printer=printer)
-
-    timediff = time.time() - starttime
-    if log_time is not None:
-        log_time("greedy search", timediff)
-
-    return sol
-
-
-def check_and_extend_solution(solutionFilePath, durchmesser):
-    # Lies die Lösung ein
-    sol = checker.readSolution(solutionFilePath)
-    logging.info("Solution for {}:".format(durchmesser))
-
-    # int um die loecher zu zaehlen
-    added = 0
-
-    # looking for missing points with "while"
-
-    while True:
-        starttime = time.time()
-        arr = checker.checkSolution(sol, durchmesser, printing=False)
-        diff = time.time() - starttime
-        if arr is None:
-            break
-        else:
-            added = added + 1
-            sol.append(arr)
-            logging.info("added:{}\ttime used:{}".format(added, diff))
-
-    logging.info("=========DONE=========")
-    logging.info("Due to holes additionally added points {}".format(added))
-    logging.info("Number of needed shperical caps: {}".format(len(sol)))
-    # Überprüfe die Lösung
-    checker.checkSolution(sol, durchmesser)
-
-    return sol, len(sol), added
-
-
 def solve(r_deg, N, intersection_weight, exploration_factor, solutionFilePath):
     R = 1
     durchmesser = 2 * r_deg
@@ -119,78 +52,152 @@ def solve(r_deg, N, intersection_weight, exploration_factor, solutionFilePath):
     logging.info("durchmesser:" + str(math.radians(durchmesser)) + "\tr/2:" + str(r))
 
     #########################
+    ##### Logging setup #####
     #########################
-    ##### Create Graph ######
+
+    
+    logging.info(
+        "Start greedy for r={}°    N={}    sep_step={} explor={}   inter_weight={}:".format(
+            durchmeser / 2, N, seperation_step, exploration_factor, intersection_weight
+        )
+)
+
+
+
+    setupLogger.setup("Run solve")
+    time_ground_zero = time.time()
+
     #########################
+    ###### Run Prog #########
     #########################
+
+    ##### Build Points ######
 
     starttime = time.time()
+    # ## random
+    # points = factory.gen_random_points(N)
 
-    g = Graph(
-        cover_radius=r,
-        exploration_factor=exploration_factor,
-        number_of_points=N,
-        intersection_weight=intersection_weight,
+    # ## iko
+    # points = factory.gen_iko_points(divisions=5)
+
+    # ## alchimeds
+    # points = factory.gen_archimedic_spiral(speed=500, N=N)
+
+    # ## bauer
+    points = factory.gen_bauer_spiral(N)
+
+    log_time("point factory", time.time() - starttime)
+
+
+    ##### Gen Stripes ######
+    # Seperation of points into stripes / chunks
+
+    starttime = time.time()
+    stripes, labels, delete_parts = seperator.create_stripes(
+        points=points, r=r, step_prct=seperation_step, z_index=5
+    )
+    log_time("stripes generation", time.time() - starttime)
+
+
+    # solve individuals
+    total_solution = Total_Solution(N, labels, delete_parts)
+
+    print(total_solution.ranges)
+    print(total_solution.delete_parts)
+
+    i = 0
+    for stripe in stripes:
+        n = len(stripe[0])
+
+        # build subgraph
+        starttime = time.time()
+        graph = Graph(
+            cover_radius=r,
+            number_of_points=n,
+            exploration_factor=exploration_factor,
+            intersection_weight=intersection_weight,
+            points=np.transpose(
+                stripe
+            ),  # graph iteriert über Zeilen und nicht Spalten => transposes
+        )
+
+        if n <= 10_000:
+            steps = 1
+        else:
+            old_steps = 1 + int(n / 10_000)
+            steps = 1 + int(n / 10_000) * int(n / 10_000)
+        graph.update_all_neighbours(steps=steps)
+
+        # build sol for current subgraph on stripe
+        tmp_sol = total_solution.create_initial_solution(i, graph)
+
+        log_time("graph and initial sol build", time.time() - starttime)
+
+        # solve
+        starttime = time.time()
+
+        gs = GreedySearch(graph=graph, initial_sol=tmp_sol)
+        tmp_sol = gs.findSolution()
+
+        log_time("greadysearch", time.time() - starttime)
+
+        # include in solution
+        total_solution.include_solution(iteration=i, solution=tmp_sol)
+
+        # incremennt iteration count
+        i = i + 1
+        
+        total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
+        pass
+
+
+    total_solution.save(solutionFilePath + "_tmp", points=np.transpose(points))
+    total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
+
+
+    #########################
+    #########################
+    ####### CHECK SOL #######
+    #########################
+    #########################
+
+    # Lies die Lösung ein
+    logging.info("Loaded solution from \"{}\"".format(solutionFilePath+ "_tmp.csv"))
+    solution = checker.readSolution(solutionFilePath+ "_tmp.csv")
+    logging.info(
+        "Solution for r={}°    N={}    sep_step={} explor={}   inter_weight={}:".format(
+            durchmeser / 2, N, seperation_step, exploration_factor, intersection_weight
+        )
     )
 
-    ### Random points version
-    # g.gen_random_points()
-
-    ### Archimedische Spirale
-    # g.gen_archimedic_spiral(N=N, speed=2000, lower_bound=-1, upper_bound=1)
-
-    ### Bauers spirale Spirale
-    g.gen_bauer_spiral(N=N)
-
-    ### Ikosaeder version
-    # g.gen_iko_points(divisions=6)
-    # N = g.number_of_points
-    # print("number of nodes:", g.number_of_points)
-
-    if N <= 15_000:
-        steps = 1
-    else:
-        steps = 1 + int(N / 10_000)
-
-    g.update_all_neighbours(steps=steps)
-
-    timediff = time.time() - starttime
-    log_time("graph creation", timediff)
-
-    #########################
-    #########################
-    ####### SOLVE IT ########
-    #########################
-    #########################
-
-    starttime = time.time()
-
-    gs = GreedySearch(graph=g)
-    s = gs.findSolution(printer=None)
-
-    timediff = time.time() - starttime
-    log_time("greedy search", timediff)
-
-    # logging.info(s)
-    s.save(solutionFilePath)
-    _, len_sol, added = check_and_extend_solution(solutionFilePath, durchmesser)
-    return len_sol, added
+    # custom printer for checker
+    def collect_printer(i, length, timediff):
+        if i % 10 == 0:
+            log_time("collecting missing - so far: {}   (added={})".format(length,i), timediff=timediff)
+            return True
+        return False
 
 
-if __name__ == "__main__":
-    # solutionFilePath = "sols\\solution_20000_3.5_01.csv"
-    # saveTo = "sols\\complete_3.5_01.csv"
-    solutionFilePath = "sols\\solution_10000_74.8_01.csv"
-    saveTo = "sols\\complete_74.8_01.csv"
-    # durchmesser = 3.5
-    durchmesser = 74.8
+    added = checker.collect_missing(solution=solution, alpha=durchmeser,n=3,printer=collect_printer)
+    for a in added:
+        solution.append(a)
 
-    try:
-        sol, _, added = check_and_extend_solution(solutionFilePath, durchmesser)
-    except KeyboardInterrupt:
-        print("Got Interrupted - proceeding with saving")
+    logging.info("=========DONE=========")
+    logging.info("Due to holes additionally added points {}".format(len(added)))
+    logging.info("Number of needed shperical caps: {}".format(len(solution)))
+    # Überprüfe die Lösung
+    checker.checkSolution(solution, durchmeser)
 
-    logging.info("added:{}".format(added))
+    # save solution and added
+
+
+    writer_solution = csv.writer(
+        open(file=solutionFilePath + ".csv", mode="w", newline=""), delimiter=";"
+    )
+    for p in solution:
+        writer_solution.writerow([p[0], p[1], p[2]])
+        pass
+
 
     if saveTo is not None:
         writer_nodes = csv.writer(

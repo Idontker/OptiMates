@@ -34,12 +34,12 @@ class Total_Solution:
 
         tmp = self.used_labels[(self.used_labels >= start) & (self.used_labels <= end)]
         tmp = tmp - start
-        logging.info("{}:reused labels: start={}\tend={}".format(iteration, start, end))
-        logging.info(
-            "{}:reused labels: count={}\tlabels={}\tlabels-start={}".format(
-                iteration, len(tmp), tmp + start, tmp
-            )
-        )
+        logging.info("iteration {}:reused labels: start={}\tend={}\tcount={}".format(iteration, start, end, len(tmp)))
+        # logging.debug(
+        #     "{}:reused labels: count={}\tlabels={}\tlabels-start={}".format(
+        #         iteration, len(tmp), tmp + start, tmp
+        #     )
+        # )
 
         for label in tmp:
             sol.addNodeByLabel(label)
