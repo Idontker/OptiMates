@@ -7,17 +7,26 @@ from tqdm import tqdm
 
 # TODO: make it fast: https://stackoverflow.com/questions/50615262/what-is-the-fastest-way-to-xor-a-lot-of-binary-arrays-in-python
 
+### Paramas to set
+
+durchmeser = 2 * 13  # deg
+N = 20_000
+seperation_step = 0.8
+intersection_bruch = 0.2
+
+### Fixed Paramas
 
 R = 1
-durchmeser = 2 * 1.75  # deg
 r_deg = durchmeser / 2
 r = math.radians(r_deg)
 
-N = 220_000
-seperation_step = 0.8
-
 exploration_factor = 1.8
-intersection_weight = 10
+
+kappenanteil = (1 - np.cos(r)) / 2
+dichte = N * kappenanteil
+intersection_weight = dichte * intersection_bruch
+
+# intersection_weight = 10
 
 # N = 500_000
 # step_prct = 0.065
@@ -39,5 +48,5 @@ ret = solver.solve(
     seperation_step=seperation_step,
     solutionFilePath=solutionFilePath,
     solution_log_FilePath=solution_log_FilePath,
-    save_it = True
+    save_it=True,
 )
