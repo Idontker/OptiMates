@@ -1,3 +1,5 @@
+maybetrash/*
+
 # .png ignored per default
 *.png
 

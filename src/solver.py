@@ -57,6 +57,7 @@ def solve(
     seperation_step,
     solutionFilePath,
     solution_log_FilePath,
+    save_it
 ):
     R = 1
     durchmeser = 2 * r_deg
@@ -68,12 +69,11 @@ def solve(
     #########################
 
     logging.info(
-        "Start greedy for r={}°    N={}    sep_step={} explor={}   inter_weight={}:".format(
+        "Start greedy for r={}deg    N={}    sep_step={} explor={}   inter_weight={}:".format(
             durchmeser / 2, N, seperation_step, exploration_factor, intersection_weight
         )
     )
 
-    setupLogger.setup("Run solve")
     time_ground_zero = time.time()
 
     #########################
@@ -109,8 +109,8 @@ def solve(
     # solve individuals
     total_solution = Total_Solution(N, labels, delete_parts)
 
-    print(total_solution.ranges)
-    print(total_solution.delete_parts)
+    # print(total_solution.ranges)
+    # print(total_solution.delete_parts)
 
     i = 0
     for stripe in stripes:
@@ -155,12 +155,13 @@ def solve(
 
         # incremennt iteration count
         i = i + 1
-
-        total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
+        if save_it:
+            total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
         pass
 
-    total_solution.save(solutionFilePath + "_tmp", points=np.transpose(points))
-    total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
+    total_solution.save("tmp_calculation", points=np.transpose(points))
+    if save_it:
+        total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
 
     #########################
     #########################
@@ -169,10 +170,10 @@ def solve(
     #########################
 
     # Lies die Lösung ein
-    logging.info('Loaded solution from "{}"'.format(solutionFilePath + "_tmp.csv"))
-    solution = checker.readSolution(solutionFilePath + "_tmp.csv")
+    logging.info('Loaded solution from "{}"'.format("tmp_calculation.csv"))
+    solution = checker.readSolution("tmp_calculation.csv")
     logging.info(
-        "Solution for r={}°    N={}    sep_step={} explor={}   inter_weight={}:".format(
+        "Solution for r={}    N={}    sep_step={} explor={}   inter_weight={}:".format(
             durchmeser / 2, N, seperation_step, exploration_factor, intersection_weight
         )
     )
@@ -201,16 +202,16 @@ def solve(
     checker.checkSolution(solution, durchmeser)
 
     # save solution and added
+    if save_it:
+        writer_solution = csv.writer(
+            open(file=solutionFilePath + ".csv", mode="w", newline=""), delimiter=";"
+        )
 
-    writer_solution = csv.writer(
-        open(file=solutionFilePath + ".csv", mode="w", newline=""), delimiter=";"
-    )
-
-    for p in solution:
-        if type(p) is np.ndarray:
-            writer_solution.writerow([p[0], p[1], p[2]])
-        else:
-            writer_solution.writerow([p[0], p[1], p[2].replace("\n", "")])
+        for p in solution:
+            if type(p) is np.ndarray:
+                writer_solution.writerow([p[0], p[1], p[2]])
+            else:
+                writer_solution.writerow([p[0], p[1], p[2].replace("\n", "")])
         pass
 
     return len(solution), len(added), time_ground_end -time_ground_zero

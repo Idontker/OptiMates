@@ -37,7 +37,7 @@ def _get_stripes(arr, Z, epsi, z_index=2):
         lens.append(len(tmp[0]))
         s.append(tmp)
 
-    logging.info(lens)
+    logging.info("stripes: {}".format(lens))
     return s
 
 
@@ -64,7 +64,7 @@ def _validate_Z(Z, epsi=0):
         max = Z[i + 1] + epsi if Z[i + 1] + epsi < np.pi else np.pi
         face = np.cos(low) - np.cos(max)
         faces.append(face)
-    logging.info("faces[0]: {}\tavg(faces): {}:".format(faces[0], np.average(faces)))
+    # logging.info("faces[0]: {}\tavg(faces): {}:".format(faces[0], np.average(faces)))
     pass
 
 

@@ -17,8 +17,13 @@ import csv
 # TODO: make it fast: https://stackoverflow.com/questions/50615262/what-is-the-fastest-way-to-xor-a-lot-of-binary-arrays-in-python
 
 
-
+#########################
+##### Logging setup #####
+#########################
 setupLogger.setup("Run main.py")
+
+time_ground_zero = time.time()
+
 
 R = 1
 durchmeser = 2 * 13  # deg
@@ -48,13 +53,6 @@ logging.info(
 )
 
 
-#########################
-##### Logging setup #####
-#########################
-import setupLogger
-
-setupLogger.setup("Run main.py")
-time_ground_zero = time.time()
 
 #########################
 ###### Run Prog #########

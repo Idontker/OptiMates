@@ -1,7 +1,6 @@
 from graph.solution import Solution
 from graph.graph import Graph
 from greedy.greedysearch import GreedySearch
-import setupLogger
 import logging
 import math
 import sys
@@ -75,8 +74,6 @@ def printer(index: int, sol: Solution, stepsize: int = 100, stepsize_ram: int = 
 ###### Constants ########
 #########################
 
-setupLogger.setup("Run main.py")
-
 R = 1
 durchmeser = 2 * 1.75  # deg
 r = math.radians(durchmeser / 2)
@@ -116,7 +113,7 @@ time_ground_zero = time.time()
 # Lies die Lösung ein
 solution = checker.readSolution(solutionFilePath+ "_tmp.csv")
 logging.info(
-    "Solution for r={}°    N={}    sep_step={} explor={}   inter_weight={}:".format(
+    "Solution for r={}    N={}    sep_step={} explor={}   inter_weight={}:".format(
         durchmeser / 2, N, seperation_step, exploration_factor, intersection_weight
     )
 )
