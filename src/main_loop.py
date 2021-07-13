@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 
 R = 1
-durchmeser = 2 * 8  # deg
+durchmeser = 2 * 22.7  # deg
 r_deg = durchmeser / 2
 r = math.radians(r_deg)
 
@@ -17,7 +17,7 @@ r = math.radians(r_deg)
 seperation_step = 1
 
 exploration_factor = 1.8
-intersection_bruch = 0.2
+# intersection_bruch = 0.2
 
 # N = 500_000
 # step_prct = 0.065
@@ -32,46 +32,47 @@ path = ".\\logs\\testing_count_ " + str(durchmeser) + ".csv"
 lens = []
 added = []
 times = []
-Ns = np.linspace(500, 50_000, 41).astype(np.int)
-kappenanteil = (1 - np.cos(r))/2 
+
+# Ns = np.linspace(500, 50_000, 41).astype(np.int32)
+
+Ns = np.linspace(100, 5_000, 51).astype(np.int32)
+ws = np.linspace(0, 1, 51)
+dichte = Ns * (1 - np.cos(r)) / 2
+
+for w in ws:
+    for i in range(len(Ns)):
+        solutionFilePath = ".\\sols\\solution_" + str(n) + "_" + str(durchmeser) + "_01"
+        solution_log_FilePath = (
+            ".\\logs\\solution_log" + str(n) + "_" + str(durchmeser) + "_01.csv"
+        )
+
+        n = Ns[i]
+
+        # intersection_weight = dichte[i] * intersection_bruch
+        intersection_weight = dichte[i] * w
+
+        ret = solver.solve(
+            r_deg=r_deg,
+            N=n,
+            intersection_weight=intersection_weight,
+            exploration_factor=exploration_factor,
+            seperation_step=seperation_step,
+            solutionFilePath=solutionFilePath,
+            solution_log_FilePath=solution_log_FilePath,
+            save_it=False,
+        )
+
+        lens.append(ret[0])
+        added.append(ret[1])
+        times.append(ret[2])
 
 
-for n in Ns:
-    solutionFilePath = ".\\sols\\solution_" + str(n) + "_" + str(durchmeser) + "_01"
-    solution_log_FilePath = (
-        ".\\logs\\solution_log" + str(n) + "_" + str(durchmeser) + "_01.csv"
-    )
+csv_writer = csv.writer(open(file=path, mode="w", newline=""), delimiter=";")
 
-    dichte = n * kappenanteil
-    
-    intersection_weight = dichte * intersection_bruch
+csv_writer.writerow(["N", "w_inter", "dichte", "size", "added", "time used"])
 
-    ret = solver.solve(
-        r_deg=r_deg,
-        N=n,
-        intersection_weight=intersection_weight,
-        exploration_factor=exploration_factor,
-        seperation_step=seperation_step,
-        solutionFilePath=solutionFilePath,
-        solution_log_FilePath=solution_log_FilePath,
-        save_it = False
-    )
-
-    lens.append(ret[0])
-    added.append(ret[1])
-    times.append(ret[2])
-
-
-csv_writer = csv.writer(
-    open(file=path, mode="w", newline=""), delimiter=";"
-)
-
-csv_writer.writerow(["N", "dichte", "size", "added", "time used"])
-
-kappenanteil = (1 - np.cos(r))/2 
 for i in range(len(Ns)):
-    dichte = Ns[i] * kappenanteil
-    csv_writer.writerow([Ns[i], dichte, lens[i], added[i],times[i]])
+    csv_writer.writerow([Ns[i], ws[i], dichte[i], lens[i], added[i], times[i]])
     # if type(p) is np.ndarray:
     #     writer_solution.writerow([p[0], p[1], p[2]])
     # else:
