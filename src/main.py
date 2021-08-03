@@ -1,11 +1,8 @@
 import math
 import solver
-import csv
 import numpy as np
-from tqdm import tqdm
 
 
-# TODO: make it fast: https://stackoverflow.com/questions/50615262/what-is-the-fastest-way-to-xor-a-lot-of-binary-arrays-in-python
 
 ### Paramas to set
 
