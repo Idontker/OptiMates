@@ -5,16 +5,7 @@ from itertools import product, combinations
 
 
 fig = plt.figure()
-# ax = fig.gca(projection="3d")
 ax = None
-# ax = fig.add_subplot(1, 2, 1, projection="3d") TODO changed initial picture
-# ax.set_aspect("auto")
-
-# # draw cube
-# r = [-1, 1]
-# for s, e in combinations(np.array(list(product(r, r, r))), 2):
-#     if np.sum(np.abs(s-e)) == r[1]-r[0]:
-#         ax.plot3D(*zip(s, e), color="b")
 
 
 def create_subfig(row, col, place):
@@ -73,19 +64,8 @@ def kugelkappe(x, y, z, r, resolution=20j, color="g"):
     py = M[1] + a * np.cos(phi_arr) * e1[1] + a * np.sin(phi_arr) * e2[1]
     pz = M[2] + a * np.cos(phi_arr) * e1[2] + a * np.sin(phi_arr) * e2[2]
 
-    # p = [M + a * np.cos(phi) * e1 + a * np.sin(phi) * e2 for phi in phi_arr]
-    # print(p[0])
-    # print(p[1])
-    # print(p[2])
-    # print()
-    # ax.plot_surface(p, color="g", alpha=0.5)
+
     ax.scatter(px, py, pz, color=color, s=10)
-    # sax.scatter(px, py, pz, color=color, s=10)
 
-    # ax.scatter(x, y, z, color="g", s=10)
-
-
-# draw a point
-# ax.scatter([0], [0], [0], color="g", s=100)
 def plot_show():
     plt.show()

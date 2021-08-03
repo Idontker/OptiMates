@@ -6,7 +6,6 @@ from greedy.entry import Entry
 from greedy.prioqueue import PrioQueue
 import numpy as np
 import logging
-from tqdm import tqdm
 from geometrics import three_sphere_intersection as intersect
 
 

@@ -1,4 +1,3 @@
-from geometrics.ikosaeder import EPSILON
 from graph.total_solution import Total_Solution
 from greedy.greedysearch import GreedySearch
 from graph.graph import Graph

@@ -1,7 +1,6 @@
 from random import choices
 from graph.graph import Graph
 import numpy as np
-import csv
 
 
 class Solution:
