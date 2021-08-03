@@ -41,8 +41,7 @@ def log_time(tastname, timediff, time_ground_zero):
 #########################
 #########################
 
-setupLogger.shell_level = logging.INFO
-setupLogger.logfile_level = logging.DEBUG
+setupLogger.log_level = logging.INFO
 
 setupLogger.setup("solver loaded - logging setup startet")
 
