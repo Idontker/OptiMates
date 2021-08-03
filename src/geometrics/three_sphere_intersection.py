@@ -1,6 +1,10 @@
 """
-Showcases the answer of a stackoverflow question:
+modified Code based on 
+
+https://github.com/vvhitedog/three_sphere_intersection
+and 
 https://stackoverflow.com/a/1407395/177931
+
 
 Implements an analytic solution based on what is documented in above answer.
 """
