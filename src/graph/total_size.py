@@ -1,3 +1,9 @@
+"""
+code from Xavier Olive:
+https://gist.github.com/xoolive/e627baa1315dc3413ae8be8cf5a02169
+"""
+
+
 from __future__ import print_function
 from sys import getsizeof, stderr
 from itertools import chain
@@ -46,10 +52,3 @@ def total_size(o, handlers={}, verbose=False):
         return s
 
     return sizeof(o)
-
-
-##### Example call #####
-
-if __name__ == '__main__':
-    d = dict(a=1, b=2, c=3, d=[4,5,6,7], e='a string of chars')
-    print(total_size(d, verbose=True))
