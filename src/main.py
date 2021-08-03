@@ -9,7 +9,7 @@ import numpy as np
 durchmeser = 2 * 13  # deg
 N = 20_000
 seperation_step = 0.8
-intersection_bruch = 0.2
+intersection_bruch = 100/513
 
 ### Fixed Paramas
 
