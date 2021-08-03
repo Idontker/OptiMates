@@ -1,79 +1,52 @@
-import os
-print(os.getcwd())
-
-from functools import partial
-from graph import solution
-from greedy.greedysearch import GreedySearch
-from graph.graph import Graph
-from graph.solution import Solution
-import graph.graph as graph
-import setupLogger
-import validator
-import logging
 import math
-import time
+import solver
+import csv
+import numpy as np
+from tqdm import tqdm
 
 
-#########################
-#########################
-###### Constants ########
-#########################
-#########################
+# TODO: make it fast: https://stackoverflow.com/questions/50615262/what-is-the-fastest-way-to-xor-a-lot-of-binary-arrays-in-python
 
-setupLogger.setup("Run main.py")
+### Paramas to set
+
+durchmeser = 2 * 13  # deg
+N = 20_000
+seperation_step = 0.8
+intersection_bruch = 0.2
+
+### Fixed Paramas
 
 R = 1
-r = 70.6  # deg
-r = math.radians(r)
-logging.info(r)
+r_deg = durchmeser / 2
+r = math.radians(r_deg)
 
-N = 1000
+exploration_factor = 1.8
 
-#########################
-#########################
-##### Create Graph ######
-#########################
-#########################
+kappenanteil = (1 - np.cos(r)) / 2
+dichte = N * kappenanteil
+intersection_weight = dichte * intersection_bruch
 
-starttime = time.time()
+# intersection_weight = 10
 
-g = graph.create_default_graph_with_random_points(
-    sphere_radius=R, number_of_nodes=N, radius=r
+# N = 500_000
+# step_prct = 0.065
+# seperation_step = 0.1
+
+# N = 2_000_000
+# seperation_step = 0.065
+
+solutionFilePath = ".\\sols\\solution_" + str(N) + "_" + str(durchmeser) + "_01"
+solution_log_FilePath = (
+    ".\\logs\\solution_log" + str(N) + "_" + str(durchmeser) + "_01.csv"
 )
 
-timediff = time.time() - starttime
-logging.info(
-    "time for graph creation: {}::{}::{}    [min:sec:ms]".format(
-        math.trunc(timediff / 60),
-        math.trunc(timediff % 60),
-        math.trunc((timediff - math.trunc(timediff)) * 1000),
-    )
+ret = solver.solve(
+    r_deg=r_deg,
+    N=N,
+    intersection_weight=intersection_weight,
+    exploration_factor=exploration_factor,
+    seperation_step=seperation_step,
+    solutionFilePath=solutionFilePath,
+    solution_log_FilePath=solution_log_FilePath,
+    save_it=True,
 )
-
-#########################
-#########################
-####### SOLVE IT ########
-#########################
-#########################
-
-
-def printer(index: int, sol: Solution, stepsize: int = 100):
-    if index % stepsize == 0:
-        logging.debug(
-            "step: "
-            + str(index)
-            + "\t"
-            + "covered: "
-            + str(sol.countCoveredNodes())
-            + "\tof "
-            + str(N)
-        )
-
-myPrinter = partial(printer, stepsize=1)
-
-gs = GreedySearch()
-
-s =  gs.findSolution(myPrinter)
-
-logging.info(s)
-

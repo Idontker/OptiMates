@@ -4,6 +4,8 @@ from datetime import date
 shell_level = logging.DEBUG
 logfile_level = logging.DEBUG
 
+# BUG: logfile wird ausgeschrieben
+
 
 def setup(announcement=None):
 
