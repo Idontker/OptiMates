@@ -60,7 +60,7 @@ class GreedySearch:
             p1 = self.graph.points[curr_label]
             p1 = p1[3:6]  # extrahiere karthesische Koordinaten
             for sol_label in sol_labels:
-                if sol_label == curr_entry:
+                if sol_label == curr_label:
                     continue  # skip Identitaet
 
                 p2 = self.graph.points[sol_label]
