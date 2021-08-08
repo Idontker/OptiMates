@@ -1,5 +1,4 @@
-from geometrics.ikosaeder import EPSILON
-from total_solution import Total_Solution
+from graph.total_solution import Total_Solution
 from greedy.greedysearch import GreedySearch
 from graph.graph import Graph
 import geometrics.seperation as seperator
@@ -11,9 +10,6 @@ import checker.checker as checker
 import csv
 import numpy as np
 import geometrics.point_factory as factory
-
-
-# TODO: make it fast: https://stackoverflow.com/questions/50615262/what-is-the-fastest-way-to-xor-a-lot-of-binary-arrays-in-python
 
 
 def log_time(tastname, timediff, time_ground_zero):
@@ -41,8 +37,7 @@ def log_time(tastname, timediff, time_ground_zero):
 #########################
 #########################
 
-setupLogger.shell_level = logging.INFO
-setupLogger.logfile_level = logging.DEBUG
+setupLogger.log_level = logging.INFO
 
 setupLogger.setup("solver loaded - logging setup startet")
 
@@ -62,7 +57,8 @@ def solve(
     R = 1
     durchmeser = 2 * r_deg
     r = math.radians(r_deg)
-    logging.info("durchmesser:" + str(math.radians(durchmeser)) + "\tr/2:" + str(r))
+    logging.info("durchmesser:" +
+                 str(math.radians(durchmeser)) + "\tr/2:" + str(r))
 
     #########################
     ##### Logging setup #####
@@ -131,7 +127,6 @@ def solve(
         if n <= 10_000:
             steps = 1
         else:
-            old_steps = 1 + int(n / 10_000)
             steps = 1 + int(n / 10_000) * int(n / 10_000)
         graph.update_all_neighbours(steps=steps)
 
@@ -156,12 +151,14 @@ def solve(
         # incremennt iteration count
         i = i + 1
         if save_it:
-            total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
+            total_solution.save_logs(
+                solution_log_FilePath, points=np.transpose(points))
         pass
 
     total_solution.save("tmp_calculation", points=np.transpose(points))
     if save_it:
-        total_solution.save_logs(solution_log_FilePath, points=np.transpose(points))
+        total_solution.save_logs(
+            solution_log_FilePath, points=np.transpose(points))
 
     #########################
     #########################
@@ -182,7 +179,8 @@ def solve(
     def collect_printer(i, length, timediff):
         if i % 10 == 0:
             log_time(
-                "collecting missing - so far: {}   (added={})".format(length, i),
+                "collecting missing - so far: {}   (added={})".format(
+                    length, i),
                 timediff=timediff,
                 time_ground_zero=time_ground_zero,
             )
@@ -196,7 +194,8 @@ def solve(
         solution.append(a)
     time_ground_end = time.time()
     logging.info("=========DONE=========")
-    logging.info("Due to holes additionally added points {}".format(len(added)))
+    logging.info(
+        "Due to holes additionally added points {}".format(len(added)))
     logging.info("Number of needed shperical caps: {}".format(len(solution)))
     # Überprüfe die Lösung
     checker.checkSolution(solution, durchmeser)
@@ -214,4 +213,4 @@ def solve(
                 writer_solution.writerow([p[0], p[1], p[2].replace("\n", "")])
         pass
 
-    return len(solution), len(added), time_ground_end -time_ground_zero
+    return len(solution), len(added), time_ground_end - time_ground_zero

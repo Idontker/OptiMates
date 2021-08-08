@@ -46,7 +46,7 @@ class ikosaeder:
         self.tri = np.array(tri)
         pass
 
-    def __subdived_triangles(self) -> None:
+    def _subdived_triangles(self) -> None:
         tri = []
         for t in self.tri:
             a, b, c = t
@@ -75,12 +75,11 @@ class ikosaeder:
         self.tri = np.array(tri)
 
     def subdivide(self, n=10) -> None:
-        for i in range(n):
-            self.__subdived_triangles()
+        for _ in range(n):
+            self._subdived_triangles()
         pass
 
     def normalized_points(self) -> np.array:
-        # TODO: only cart
         tmp = []
         for v in self.vertices:
             d = np.linalg.norm(v)
@@ -109,7 +108,18 @@ def plot_iko_faces(ax, iko, color="r", size=1):
         ax.add_collection3d(poly)
 
 
-def test_subdivision(n=2, size=10):
+def _surface_spere(
+    ax, r=1, alpha=1, resolution_theta=20j, resolution_phi=10j, color="black"
+) -> None:
+    # draw sphere
+    u, v = np.mgrid[0: 2 * np.pi: resolution_theta, 0: np.pi: resolution_phi]
+    x = r * np.cos(u) * np.sin(v)
+    y = r * np.sin(u) * np.sin(v)
+    z = r * np.cos(v)
+    ax.plot_surface(x, y, z, color=color, alpha=alpha)
+
+
+def _test_subdivision(n=2, size=10):
     base = ikosaeder()
     iko = ikosaeder()
 
@@ -127,10 +137,9 @@ def test_subdivision(n=2, size=10):
 
     ax = fig.add_subplot(2, 2, 3, projection="3d")
     points = iko.normalized_points()
-    # for p in points:
-    #     print(p, np.linalg.norm(p))
+
     plot_scatter3d(ax, points, size=size)
-    surface_spere(ax, r=0.98, alpha=0.2, color="gray")
+    _surface_spere(ax, r=0.98, alpha=0.2, color="gray")
 
     # gleichschenkelig
     iko.vertices = np.array([[0, 0, 0], [0, 2, 0], [2, 1, 0]])
@@ -146,65 +155,5 @@ def test_subdivision(n=2, size=10):
     plt.show()
 
 
-def surface_spere(
-    ax, r=1, alpha=1, resolution_theta=20j, resolution_phi=10j, color="black"
-) -> None:
-    # draw sphere
-    u, v = np.mgrid[0 : 2 * np.pi : resolution_theta, 0 : np.pi : resolution_phi]
-    x = r * np.cos(u) * np.sin(v)
-    y = r * np.sin(u) * np.sin(v)
-    z = r * np.cos(v)
-    ax.plot_surface(x, y, z, color=color, alpha=alpha)
-
-
 if __name__ == "__main__":
-    test_subdivision()
-    # iko = ikosaeder()
-    # plot_scatter3d(iko.vertices)
-
-    # fig = plt.figure()
-    # ax = fig.add_subplot(1, 2, 1, projection="3d")
-
-    # x = iko.vertices[:,0]
-    # y = iko.vertices[:,1]
-    # z = iko.vertices[:,2]
-    # ax.scatter(x, y, z, color="r", s=10)
-
-    # plt.show()
-
-    # plot_test()
-    # plot_wireframe(iko.vertices)
-
-
-# def plot_test():
-
-#     fig = plt.figure()
-#     ax = fig.add_subplot(projection='3d')
-
-#     # Make data
-#     u = np.linspace(0, 2 * np.pi, 100)
-#     v = np.linspace(0, np.pi, 100)
-#     x = 10 * np.outer(np.cos(u), np.sin(v))
-#     y = 10 * np.outer(np.sin(u), np.sin(v))
-#     z = 10 * np.outer(np.ones(np.size(u)), np.cos(v))
-
-#     # Plot the surface
-#     ax.plot_surface(x, y, z)
-
-#     plt.show()
-
-
-# def plot_wireframe(points, color="r"):
-#     fig = plt.figure()
-#     ax = fig.add_subplot(1, 1, 1, projection="3d")
-
-#     x = points[:, 0]
-#     y = points[:, 1]
-#     z = np.outer(np.ones(np.size(x)), points[:, 2])
-
-#     print(x)
-#     print(y)
-#     print(z)
-
-#     ax.plot_surface(x, y, z, color="r")
-#     plt.show()
+    _test_subdivision()

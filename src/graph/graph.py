@@ -1,5 +1,4 @@
 import numpy as np
-
 from tqdm import tqdm
 import graph.total_size as total
 
@@ -23,9 +22,8 @@ class Graph:
         self.exploration_factor = exploration_factor
 
         # attributes for the weighted intersection search
-        # TODO: rename - neighbours macht keinen Sinn, da es echte Puntke sind
-        self.intersection_neighbours = None
-        self.mid_neighbours = None
+        self.intersection_points = None
+        self.mid_points = None
         self.intersection_weight = intersection_weight
         self.mid_neg_weight = -intersection_weight
         pass
@@ -43,54 +41,53 @@ class Graph:
     ##############################
     ##############################
 
-    # TODO: Wahrscheinlich macht es für die Laufzeit keinen Sinn ALLES im voraus zu berechnen
-    # es sparrt zwar später Zeit, aber die kann ich mir auch sparen, da ich alles nur einmal brauche
-
     def add_intersection_point(self, p1, p2):
-        if self.intersection_neighbours is None:
-            self.intersection_neighbours = p1
+        if self.intersection_points is None:
+            self.intersection_points = p1
         else:
-            self.intersection_neighbours = np.vstack((self.intersection_neighbours, p1))
-        self.intersection_neighbours = np.vstack((self.intersection_neighbours, p2))
+            self.intersection_points = np.vstack(
+                (self.intersection_points, p1))
+        self.intersection_points = np.vstack(
+            (self.intersection_points, p2))
 
     def add_mid_point(self, m1, m2):
         """m1 und m2 sind die Mittelpunkte, zwischen denen der Mittelpunkt gelegt werden soll"""
         mid = m1 + m2
         mid = mid / np.linalg.norm(mid)
 
-        if self.mid_neighbours is None:
-            self.mid_neighbours = np.array(mid)
+        if self.mid_points is None:
+            self.mid_points = np.array(mid)
         else:
-            self.mid_neighbours = np.vstack((self.mid_neighbours, mid))
+            self.mid_points = np.vstack((self.mid_points, mid))
 
     def count_intersections_next_to(self, label):
-        if self.intersection_neighbours is None:
+        if self.intersection_points is None:
             return 0
         vec = self.points[label][3:6]
-        vec = np.matmul(self.intersection_neighbours, np.transpose(vec))
+        vec = np.matmul(self.intersection_points, np.transpose(vec))
         dist = np.arccos(vec) < self.cover_radius
 
         return np.sum(dist.astype(np.int8))
 
     def count_mid_next_to(self, label):
-        if self.mid_neighbours is None:
+        if self.mid_points is None:
             return 0
         vec = self.points[label][3:6]
-        vec = np.matmul(self.mid_neighbours, np.transpose(vec))
+        vec = np.matmul(self.mid_points, np.transpose(vec))
         dist = np.arccos(vec) < self.cover_radius
 
         return np.sum(dist.astype(np.int8))
 
     def delect_intersects(self, label):
-        if self.intersection_neighbours is None:
+        if self.intersection_points is None:
             return
         vec = self.points[label][3:6]
-        vec = np.matmul(self.intersection_neighbours, np.transpose(vec))
+        vec = np.matmul(self.intersection_points, np.transpose(vec))
         dist = np.arccos(vec) < self.cover_radius
 
         indices = np.where(dist == True)[0]
-        self.intersection_neighbours = np.delete(
-            self.intersection_neighbours, indices, axis=0
+        self.intersection_points = np.delete(
+            self.intersection_points, indices, axis=0
         )
 
         pass
@@ -115,9 +112,6 @@ class Graph:
 
             matrix = np.matmul(cartesian_slice, np.transpose(other))
 
-            # verhindert, dass arccos bei d(label, label) aufgrund Rundungsfehler fehlschlagen würde.
-            # np.fill_diagonal(matrix, 1)
-
             # ugly bugfix, da die diagonale auf 1 zu setzten nicht so trivial ist (diagonale nach dem zweiten slice fängt in der mitte an)
             matrix[np.where(matrix > 1)] = 1
 
@@ -126,7 +120,6 @@ class Graph:
             byte_matrix = dist < self.cover_radius
             # -1 zeigt an, dass es vectorweise geht und nicht erst gefattend wird
             packed = np.packbits(byte_matrix, axis=-1)
-            # packed = byte_matrix
 
             # zur temporären Lösung hinzufügen
             if arr is None:
@@ -138,12 +131,6 @@ class Graph:
         self.adj_neighbour = arr
         pass
 
-    def update_neighbour(self, label) -> None:
-        # TODO: wie kann ich einzelne Knoten zur adj matrix hinzufuegen?
-        d = self.get_distance_vector(label)
-        byte_vector = d < self.cover_radius
-        self.adj_neighbour_dic[label] = np.packbits(byte_vector)
-
     ##############################
     ##############################
     ########## Getters ###########
@@ -151,16 +138,15 @@ class Graph:
     ##############################
 
     def get_extension_and_reach(self, label):
-        d = self.get_distance_vector(label)
+        d = self._get_distance_vector_label(label)
         byte_extension = d < self.exploration_factor * self.cover_radius
         byte_reach = d < 2 * self.cover_radius
         return byte_extension, byte_reach
 
-    def get_distance_vector(self, label, vector=None) -> np.array:
+    def _get_distance_vector_label(self, label) -> np.array:
         cartesian = self.points[:, 3:6]
-        # TODO: sinnvoller trennen durch zwei Funktionen: z.B. get_distance_vector(label) ruft get_distance_vector_by_vec(vec) auf
         # ermöglicht auch beliebig distanzvektoren zu generieren
-        other = cartesian[label] if vector is None else vector
+        other = cartesian[label]
         vec = np.matmul(cartesian, np.transpose(other))
 
         # verhindert, dass arccos bei d(label, label) aufgrund Rundungsfehler fehlschlagen würde.
