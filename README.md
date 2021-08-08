@@ -14,11 +14,13 @@ Der hier gewählte Lösungsanatz besteht aus vier Phasen:
 
 ## Beispielswerte für verschiedene Größen
 r | untere Schranke | Kleinste Größe der Lösungsmenge | Laufzeit |
+---| ---| ---| ---|
 70.6° | 3 | 5 | 106 ms |
 37.4° | 10 | 14 | 202 ms | 
 22.7° | 26 | 45 | 2.52 s | 
 13.0° | 79 | 117 | 11.6 s | 
 1.75° | 4288 | 6786 | 110 min |
+
 Die Laufzeiten ergeben sich aus der Berechnung mit folgender Hardware Fujitsu Esprimo P758, Intel Core i7-9700, 64 GB RAM. Die untere Schranke ergibt sich durch ein Vergleich der Oberfläche eines Kugelsegments und der Oberfläche der Sphäre dar. Dies ist somit eine theoretische Schranke, die nicht erreichbar ist.
 
 
@@ -38,12 +40,11 @@ The solution approach chosen here consists of four phases:
 
 ## Example results for diffrent paramters
 r | lower limit | smallest resultset | runtimes |
+---| ---| ---| ---|
 70.6° | 3 | 5 | 106 ms |
 37.4° | 10 | 14 | 202 ms | 
 22.7° | 26 | 45 | 2.52 s | 
 13.0° | 79 | 117 | 11.6 s | 
 1.75° | 4288 | 6786 | 110 min |
+
 The runtimes result from the calculation with the following hardware Fujitsu Esprimo P758, Intel Core i7-9700, 64 GB RAM. The lower limit is calculated by comparing the surface of a sphere segment and the surface of the sphere. This is therefore a theoretical barrier that is not achievable.
-
-
-Covering a Sphere with spheresegments of a fixed radius
