@@ -6,9 +6,6 @@ maybetrash/*
 # test_ ignored per default
 test_*
 
-# sols ignored per default
-sols/
-
 # presentation
 src/presentation/*
 
