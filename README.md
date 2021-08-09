@@ -1,3 +1,18 @@
+# Gliederung / Table of Contents
+1. Deutsche Version
+    1. Sphere-Covering Problem
+    2. Lösungsansatz
+    3. Beispielswerte für verschiedene Größen
+    4. Schriftliche Ausarbeitung
+    5. Dokumentation des Codes
+2. English Version
+    1. Sphere-Covering Problem
+    2. Solution approach
+    3. Example results for diffrent paramters
+    4. Written Paper (in German)
+    5. Documentation of the Code
+
+
 # Deutsche Version
 Optimates ist eine fiktive Firma, welche im Rahmen eines Projektseminars gegründet wurde. Ihr Ziel war es, eine Implementierung für das Sphere-Covering Problem für die dreidimensionale Sphäre zu entwickeln. 
 
@@ -24,6 +39,11 @@ r | untere Schranke | Kleinste Größe der Lösungsmenge | Laufzeit |
 Die Laufzeiten ergeben sich aus der Berechnung mit folgender Hardware Fujitsu Esprimo P758, Intel Core i7-9700, 64 GB RAM. Die untere Schranke ergibt sich durch ein Vergleich der Oberfläche eines Kugelsegments und der Oberfläche der Sphäre dar. Dies ist somit eine theoretische Schranke, die nicht erreichbar ist.
 
 
+## [Schriftliche Ausarbeitung](https://github.com/Idontker/OptiMates/blob/main/Hausarbeit.pdf)
+
+## [Dokumentation des Codes](https://github.com/Idontker/OptiMates/blob/main/src/README.md)
+
+
 # English Version
 Optimates is a fictitious company that was founded during a project seminar. Their goal was to develop an implementation for the sphere-covering problem for the three-dimensional sphere. 
 
@@ -48,3 +68,7 @@ r | lower limit | smallest resultset | runtimes |
 1.75° | 4288 | 6786 | 110 min |
 
 The runtimes result from the calculation with the following hardware Fujitsu Esprimo P758, Intel Core i7-9700, 64 GB RAM. The lower limit is calculated by comparing the surface of a sphere segment and the surface of the sphere. This is therefore a theoretical barrier that is not achievable.
+
+## [Written Paper](https://github.com/Idontker/OptiMates/blob/main/Hausarbeit.pdf)
+
+## [Documentation of the Code](https://github.com/Idontker/OptiMates/blob/main/src/README.md)
