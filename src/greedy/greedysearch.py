@@ -77,6 +77,11 @@ class GreedySearch:
                     self.graph.add_mid_point(p1, p2)
                 pass
 
+
+            # Der Extension-Vektor beschreibt die Mittelpunkte, die nach Einfügen des aktuellen Knotens
+            # potentiell als neue Mittelpunkte in Frage kommen
+            # Der Reached-Vektor beschriebt die Knoten, dessen Fittness durch die hinzunahme des aktuellen 
+            # Knotens beeinflusst werden können.
             extension_vec, reached_vec = self.graph.get_extension_and_reach(curr_label)
             # where gibt nen array von arrays, daher braucht es das [0]
             reached_labels = np.where(reached_vec != 0)[0]
@@ -87,12 +92,17 @@ class GreedySearch:
             # for reached_label in tqdm(reached_labels):
             for reached_label in reached_labels:
                 if sol.containsLabel(reached_label):
+                    # Element bereits in der Lösung enthalten
                     pass
                 elif reached_label in self.label_to_entry:
+                    # Die Fittness des Elements wird durch die Hinzunahme des aktuellen Knotens beeinflusst
+                    # Daher musst dies aktualisiert werden
                     entry = self.label_to_entry[reached_label]
                     entry.update(covered_nodes, amount_covered)
                     self.prioqueue.add_task(entry, -entry.getFittness())
                 elif extension_vec[reached_label] == 1:
+                    # Einfügen der Knoten, die nun eine mögliche Erweiterung darstellen, aber 
+                    # noch nicht in der Queue enthalten sind
                     self.__addLabelToQueue(reached_label, covered_nodes, amount_covered)
             pass
             iteration = iteration + 1
