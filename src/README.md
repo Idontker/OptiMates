@@ -2,7 +2,7 @@
 1. Auflistung der Module und Pakete (Deutsche Version)
     * Module
     * Pakete
-3. Listing of modules and packages (English Version)
+2. Listing of modules and packages (English Version)
     * Moduls
     * Packages
 
