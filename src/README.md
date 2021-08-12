@@ -46,6 +46,8 @@
 ## Pakete
 * *checker/*: In diesem Paket befindet sich das Modul, welches mit einem Ungleichungssystem fehlende Punkte einsammelt und eine gegebene Lösung verifiziert.
 * *geometrics/*: In diesem Paket befindet sich alle Module, die eine geometrische Komponente besitzten. Dazu gehören die unterschiedlichen Diskretisierungsverfahren für eine Kugel oder auch das Modul zur Bestimmung der Schnittpunkte dreier Sphären.
+* *graph/*: In diesem Paket befinden sich die Module, die den Graphen implementieren, und Module, die die (Teil-)Lösungen implementieren.
+* *greedy/*: In diesem Paket befinden sich die Module, die das Greedyverfahren implementieren.
 
 # Listing of modules and packages (English Version)
 ## Moduls
@@ -88,4 +90,5 @@
 ## Packages
 * *checker/*: This package contains the module that collects missing points with a system of inequalities and verifies a given solution.
 * *geometrics/*: This package contains all modules that have a geometric component. These include the different discretisation methods for a sphere or the module for determining the intersection points of three spheres.
-
+* *graph/*: In this package are the modules that implement the graph and modules that implement the (partial) solutions.
+* *greedy/*: This package contains the modules that implement the greedy procedure.
