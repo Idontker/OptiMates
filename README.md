@@ -1,4 +1,5 @@
 # Gliederung / Table of Contents
+0. Genutzte Pakete / Used Packages
 1. Deutsche Version
     1. Sphere-Covering Problem
     2. Lösungsansatz
@@ -12,6 +13,21 @@
     4. Written Paper (in German)
     5. Documentation of the Code
 
+# Genutzte Pakete mit Versionen / Used Packages with versions
+```
+[packages]
+numpy = "*"
+tqdm = "*"
+nptyping = "*"
+gurobipy = "*"
+shapely = "*"
+matplotlib = "*"
+
+[requires]
+python_version = "3.7"
+```
+**Hinweis:** Das Modul *gurobipy* benötigt eine Lizenz um es größere Probleme nutzen zu können. Hierfür wird auf die [offizielle Website](https://www.gurobi.com/) verwiesen. <br>
+**Note:** The module *gurobipy* requires a licence in order to be able to use it without major problems. For this, please refer to the [official website](https://www.gurobi.com/).
 
 # Deutsche Version
 Optimates ist eine fiktive Firma, welche im Rahmen eines Projektseminars gegründet wurde. Ihr Ziel war es, eine Implementierung für das Sphere-Covering Problem für die dreidimensionale Sphäre zu entwickeln. 
