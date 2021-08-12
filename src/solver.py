@@ -10,6 +10,7 @@ import checker.checker as checker
 import csv
 import numpy as np
 import geometrics.point_factory as factory
+import os
 
 
 def log_time(tastname, timediff, time_ground_zero):
@@ -211,6 +212,12 @@ def solve(
                 writer_solution.writerow([p[0], p[1], p[2]])
             else:
                 writer_solution.writerow([p[0], p[1], p[2].replace("\n", "")])
+        pass
+
+    # remove tmp file
+    try:
+        os.remove("tmp_calculation.csv")
+    except OSError:
         pass
 
     return len(solution), len(added), time_ground_end - time_ground_zero

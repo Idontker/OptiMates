@@ -1,41 +1,75 @@
 import math
-import solver
 import numpy as np
+import argparse
+
+# Setup the parser of the arguments
+
+parser = argparse.ArgumentParser()
+
+# required arguments
+parser.add_argument("N", help="integer - number of nodes to be used")
+parser.add_argument(
+    "radian", help="float within 0 and 360° - radian of a spherical segment in degree"
+)
+parser.add_argument(
+    "stepsize",
+    help="float within 0 and 1 - step size of the adaptive solution generation in percent",
+)
+
+# optional
+parser.add_argument(
+    "-w",
+    "--weight",
+    default=100 / 513,
+    help="float greater or equal to zero - intersection weight in percent of the pointdensity of a spherical segment",
+)
+parser.add_argument(
+    "-e",
+    "--exploration",
+    default=1.8,
+    help="float greater or equal to zero - exploration factor that is mutiplied with the radius to determine how large the distance of the surrounding nodes under consideration is",
+)
+parser.add_argument(
+    "-p", "--path", default=".\\", help="path to the save location (excluding filename)"
+)
+parser.add_argument(
+    "-l",
+    "--logpath",
+    default=".\\",
+    help="path to the save location of the log file (excluding filename)",
+)
+
+# activate arg parsing - if -h is set, it prints out the help
+args = parser.parse_args()
 
 
+# set required params
+N = int(args.N)
+r_deg = float(args.radian)
+seperation_step = float(args.stepsize)
 
-### Paramas to set
+# set optional params
+exploration_factor = float(args.exploration)
+intersection_bruch = float(args.weight)
 
-durchmeser = 2 * 13  # deg
-N = 20_000
-seperation_step = 0.8
-intersection_bruch = 100/513
+solutionFilePath = args.path + "solution_" + str(N) + "_" + str(r_deg * 2)
+solution_log_FilePath = (
+    args.logpath + "\\solution_log" + str(N) + "_" + str(r_deg * 2) + ".csv"
+)
+
 
 ### Fixed Paramas
 
 R = 1
-r_deg = durchmeser / 2
+durchmeser = 2 * r_deg  # deg
 r = math.radians(r_deg)
-
-exploration_factor = 1.8
 
 kappenanteil = (1 - np.cos(r)) / 2
 dichte = N * kappenanteil
 intersection_weight = dichte * intersection_bruch
+# imports solver and triggers the logging setup
 
-# intersection_weight = 10
-
-# N = 500_000
-# step_prct = 0.065
-# seperation_step = 0.1
-
-# N = 2_000_000
-# seperation_step = 0.065
-
-solutionFilePath = ".\\sols\\solution_" + str(N) + "_" + str(durchmeser) + "_01"
-solution_log_FilePath = (
-    ".\\logs\\solution_log" + str(N) + "_" + str(durchmeser) + "_01.csv"
-)
+import solver
 
 ret = solver.solve(
     r_deg=r_deg,
